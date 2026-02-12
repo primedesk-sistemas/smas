@@ -1,0 +1,10 @@
+{
+  "password": "PRIMEDESK123",
+  "defaults": {
+    "product": "PrimeDesk",
+    "edition": "Pro",
+    "customer": "",
+    "expires_at": ""
+  },
+  "schema_version": 2
+}

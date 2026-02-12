@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>PrimeDesk — Emissor de Licenças</title>
+  <link rel="stylesheet" href="./style.css"/>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="brand">
+        <h1>PrimeDesk — Emissor de Licenças</h1>
+        <div class="sub">Cole a KEY do cliente e gere o arquivo <span class="kbd">.lic</span>.</div>
+      </div>
+      <div class="badge">
+        <span id="statusDot" class="dot"></span>
+        <span id="statusText">Carregando…</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <label for="hwid">Chave do cliente (HWID / KEY)</label>
+        <textarea id="hwid" placeholder="Cole aqui a KEY do cliente (ex: 1A2B-3C4D-...)"></textarea>
+
+        <div class="row">
+          <div>
+            <label for="customer">Cliente</label>
+            <input id="customer" placeholder="Nome do cliente"/>
+          </div>
+          <div>
+            <label for="edition">Edição</label>
+            <input id="edition" placeholder="Ex: Pro"/>
+          </div>
+        </div>
+
+        <div>
+          <label for="expiresOn">Validade (obrigatório)</label>
+          <input id="expiresOn" type="date" required/>
+          <div class="help">Expira ao virar o dia (00:00) após a data escolhida.</div>
+        </div>
+
+        <div class="actions">
+          <button id="btnEmit" class="btn primary">Gerar licença</button>
+          <button id="btnHistory" class="btn">Histórico</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Login -->
+  <div id="loginModal" class="modal" aria-hidden="true">
+    <div class="panel">
+      <h2>Senha do emissor</h2>
+      <p class="muted">Digite sua senha para liberar a emissão de licenças.</p>
+      <input id="password" type="password" placeholder="Senha"/>
+      <div class="actions right">
+        <button id="btnLogin" class="btn primary">Entrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Histórico -->
+  <div id="historyModal" class="modal" aria-hidden="true">
+    <div class="panel wide">
+      <div class="panelHeader">
+        <h2>Histórico</h2>
+        <button id="btnCloseHistory" class="btn">Fechar</button>
+      </div>
+
+      <div class="tableWrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Emissão</th>
+              <th>Cliente</th>
+              <th>HWID</th>
+              <th>Validade</th>
+              <th>Arquivo</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="histBody"></tbody>
+        </table>
+      </div>
+
+      <div class="actions">
+        <button id="btnExport" class="btn">Exportar</button>
+        <label class="btn file">
+          Importar
+          <input id="importFile" type="file" accept=".json" hidden/>
+        </label>
+        <button id="btnClear" class="btn danger">Limpar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>

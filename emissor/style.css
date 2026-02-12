@@ -1,0 +1,72 @@
+:root{--bg:#0b1220;--card:#121a2b;--text:#e7eefc;--muted:#9bb0d3;--accent:#4da3ff;--danger:#ff4d4d;--ok:#2dd4bf;--border:#24324f}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:linear-gradient(180deg,#07101f,#0b1220);color:var(--text)}
+a{color:var(--accent)}
+.container{max-width:980px;margin:0 auto;padding:24px}
+.header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand{display:flex;flex-direction:column;gap:4px}
+.brand h1{font-size:20px;margin:0}
+.brand .sub{color:var(--muted);font-size:13px}
+.card{background:rgba(18,26,43,.92);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.grid{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:860px){.grid{grid-template-columns:1.2fr .8fr}}
+label{display:block;font-size:13px;color:var(--muted);margin:10px 0 6px}
+input,textarea,select{width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--border);background:#0b1427;color:var(--text);outline:none}
+textarea{min-height:84px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:600px){.row{grid-template-columns:1fr 1fr}}
+.btn{appearance:none;border:1px solid var(--border);background:#0b1427;color:var(--text);padding:10px 12px;border-radius:12px;cursor:pointer;font-weight:600}
+.btn:hover{border-color:#38507c}
+.btn.primary{background:linear-gradient(180deg,#1d4ed8,#1e40af);border-color:#2a4aa8}
+.btn.primary:hover{filter:brightness(1.05)}
+.btn.danger{background:linear-gradient(180deg,#ef4444,#b91c1c);border-color:#ef4444}
+.btn.danger:hover{filter:brightness(1.05)}
+.btn.ghost{background:transparent}
+.btn.small{padding:8px 10px;border-radius:10px;font-size:13px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.hr{height:1px;background:var(--border);margin:14px 0}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.dot{width:9px;height:9px;border-radius:999px;background:var(--muted)}
+.dot.ok{background:var(--ok)}
+.dot.bad{background:var(--danger)}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{border-bottom:1px solid var(--border);padding:10px 8px;text-align:left;font-size:13px}
+.table th{color:var(--muted);font-weight:700}
+.table td code{color:#bcd4ff}
+.kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;background:#0b1427;border:1px solid var(--border);padding:2px 6px;border-radius:8px}
+.notice{padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#0b1427;color:var(--muted);font-size:13px}
+.notice strong{color:var(--text)}
+.footer{color:var(--muted);font-size:12px;margin-top:12px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:18px}
+.modal.open{display:flex}
+.modal .panel{width:min(560px,100%);background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
+.modal .panel h2{margin:0 0 6px;font-size:16px}
+.modal .panel p{margin:0 0 14px;color:var(--muted);font-size:13px}
+
+
+
+/* Layout: 1 coluna (evita espaço vazio) */
+.grid{display:grid;grid-template-columns:1fr;gap:14px}
+
+/* Botões lado a lado */
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.actions.right{justify-content:flex-end}
+
+/* Ajuda */
+.help{margin-top:6px;font-size:12px;color:var(--muted)}
+
+/* Modal */
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.55);z-index:999}
+.modal.open{display:flex}
+.panel{width:min(520px,100%);background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.panel.wide{width:min(980px,100%)}
+.panel h2{margin:0 0 10px 0;font-size:18px}
+.panel .muted{margin:0 0 12px 0;color:var(--muted);font-size:13px}
+.panelHeader{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.tableWrap{max-height:60vh;overflow:auto;border:1px solid var(--border);border-radius:12px}
+
+/* Botão arquivo */
+.btn.file{display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+
+/* Inputs */
+input[type="date"]{color-scheme:dark}
