@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PrimeDesk — Sistema Completo para Cadastro Único | Atendimentos, Visitas e Consulta</title>
+  <meta name="description" content="PrimeDesk: sistema completo para Secretarias de Assistência Social — registre atendimentos, visitas domiciliares e consulte dados do Cadastro Único com rapidez, segurança e rastreabilidade." />
+  <meta name="theme-color" content="#0B5BD3" />
+  <style>
+    :root{
+      --bg:#070A12;
+      --panel: rgba(255,255,255,.06);
+      --stroke: rgba(255,255,255,.12);
+      --text:#EAF0FF;
+      --muted: rgba(234,240,255,.72);
+      --brand:#0B5BD3;
+      --brand2:#2AA7FF;
+      --ok:#36D399;
+      --warn:#FBBF24;
+      --shadow: 0 30px 90px rgba(0,0,0,.55);
+      --radius: 18px;
+      --radius2: 26px;
+      --max: 1120px;
+      --pad: clamp(16px, 3vw, 28px);
+      --h1: clamp(34px, 4.2vw, 54px);
+      --h2: clamp(24px, 3vw, 34px);
+      --h3: clamp(18px, 2vw, 22px);
+      --p:  clamp(15px, 1.2vw, 17px);
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color: var(--text);
+      background: radial-gradient(1200px 700px at 20% 10%, rgba(11,91,211,.35), transparent 60%),
+                  radial-gradient(900px 500px at 90% 30%, rgba(42,167,255,.25), transparent 55%),
+                  radial-gradient(700px 480px at 50% 95%, rgba(54,211,153,.16), transparent 55%),
+                  linear-gradient(180deg, #060812 0%, #050712 40%, #04050C 100%);
+      overflow-x:hidden;
+    }
+    a{ color: inherit; text-decoration:none; }
+    .wrap{ max-width: var(--max); margin: 0 auto; padding: 0 var(--pad); }
+    .glass{
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .nav{
+      position: sticky; top: 0; z-index: 20;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: rgba(5,7,18,.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .nav .row{
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 14px 0;
+      gap: 14px;
+    }
+    .brand{
+      display:flex; align-items:center; gap: 12px;
+    }
+    .brand img{ height: 48px; width:auto; display:block; }
+    .brand{ gap: 0; }
+    .nav .row{ padding: 10px 0; }
+    .brand strong{
+      letter-spacing: .2px; font-weight: 700;
+      display:flex; flex-direction:column; line-height: 1.05;
+    }
+    .brand strong span{ font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 3px; }
+    .links{
+      display:flex; gap: 18px; align-items:center;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .links a{
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      transition: .2s ease;
+    }
+    .links a:hover{
+      color: var(--text);
+      border-color: rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+    }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 14px;
+      transition: transform .15s ease, background .2s ease, border-color .2s ease;
+      user-select:none;
+    }
+    .btn:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.22); background: rgba(255,255,255,.09); }
+    .btn.primary{
+      border-color: rgba(11,91,211,.55);
+      background: linear-gradient(90deg, rgba(11,91,211,.9), rgba(42,167,255,.85));
+      box-shadow: 0 14px 40px rgba(11,91,211,.35);
+    }
+    .btn.primary:hover{ transform: translateY(-2px); }
+    .hero{ padding: clamp(34px, 5.5vw, 70px) 0 28px; }
+    .hero-grid{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: clamp(18px, 3vw, 28px);
+      align-items: start;
+    }
+    .hero-grid > aside{ align-self: start; }
+    .kicker{
+      display:inline-flex; align-items:center; gap: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: .35px;
+      text-transform: uppercase;
+      width: fit-content;
+    }
+    .dot{ width:8px; height:8px; border-radius:50%; background: linear-gradient(90deg, var(--brand), var(--brand2)); box-shadow: 0 0 0 4px rgba(11,91,211,.18); }
+    h1{ font-size: var(--h1); margin: 14px 0 12px; line-height: 1.05; letter-spacing: -0.6px; }
+    p{ font-size: var(--p); color: var(--muted); line-height: 1.65; margin: 0 0 14px; }
+    .hero .actions{ display:flex; gap: 12px; flex-wrap:wrap; margin-top: 18px; }
+    .hero-card{ padding: 18px; position: relative; overflow:hidden; }
+    .hero-card::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: radial-gradient(600px 300px at 30% 10%, rgba(42,167,255,.22), transparent 60%),
+                  radial-gradient(500px 280px at 90% 20%, rgba(11,91,211,.22), transparent 60%);
+      z-index:0;
+    }
+    .hero-card > *{ position: relative; z-index:1; }
+    .stats{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .stat{
+      padding: 14px;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .stat b{ font-size: 18px; display:block; }
+    .stat span{ color: var(--muted); font-size: 13px; font-weight: 600; }
+    .section{ padding: 30px 0; }
+    .section h2{ font-size: var(--h2); margin: 0 0 10px; letter-spacing: -0.2px; }
+    .sub{ margin: 0 0 18px; color: var(--muted); max-width: 72ch; }
+    .grid2{ display:grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .grid3{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .shots-grid{ align-items: stretch; grid-auto-rows: 1fr; }
+    .card{ padding: 18px; border-radius: var(--radius2); }
+    .tag{
+      display:inline-flex;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .25px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .shot{
+      padding: 14px;
+      border-radius: var(--radius2);
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      height:100%;
+      transition: transform .18s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+      box-shadow: 0 18px 55px rgba(0,0,0,.35);
+    }
+    .shot .thumb{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(10,12,22,.75);
+      overflow:hidden;
+      aspect-ratio: 16 / 9;
+      box-shadow: 0 16px 40px rgba(0,0,0,.45);
+    }
+    .shot .thumb img{
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit: contain;
+      transform: scale(1.00);
+      transition: transform .22s ease, filter .22s ease;
+      cursor: zoom-in;
+      filter: saturate(1.04) contrast(1.04);
+    }
+    .shot:hover .thumb img{ transform: scale(1.02); filter: saturate(1.08) contrast(1.07); }
+    .shot:hover{ transform: translateY(-3px); border-color: rgba(42,167,255,.28); background: rgba(255,255,255,.06); }
+    .shot h3{ margin: 10px 0 6px; font-size: var(--h3); letter-spacing: -0.2px; }
+    .shot p{ margin:0; font-size: 14px; }
+
+    /* Lightbox (para ver detalhes) */
+    .lb{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.72);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: clamp(16px, 4vw, 36px);
+      z-index: 999;
+    }
+    .lb.show{ display:flex; }
+    .lb .panel{
+      width: min(1100px, 100%);
+      max-height: 86vh;
+      border-radius: 18px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(10,12,22,.75);
+      box-shadow: 0 30px 90px rgba(0,0,0,.65);
+    }
+    .lb .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      color: rgba(234,240,255,.82);
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .lb .close{
+      appearance:none;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 10px;
+      cursor:pointer;
+      font-weight: 800;
+    }
+    .lb .imgwrap{
+      background: #0A0C16;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      max-height: calc(86vh - 48px);
+    }
+    .lb img{
+      width: 100%;
+      height: auto;
+      max-height: calc(86vh - 48px);
+      object-fit: contain;
+      display:block;
+    }
+    .cta{
+      padding: 26px;
+      border-radius: var(--radius2);
+      background: linear-gradient(90deg, rgba(11,91,211,.18), rgba(42,167,255,.10));
+      border: 1px solid rgba(11,91,211,.25);
+      display:flex; align-items:center; justify-content:space-between; gap: 16px;
+    }
+    .cta h3{ margin: 0 0 6px; font-size: 20px; }
+    .cta p{ margin: 0; max-width: 70ch; }
+    .footer{
+      padding: 28px 0 40px;
+      color: rgba(234,240,255,.55);
+      font-size: 13px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      margin-top: 26px;
+    }
+    .footer .row{ display:flex; flex-wrap:wrap; justify-content:space-between; gap: 12px; align-items:center; }
+    .tiny-links{ display:flex; gap: 14px; flex-wrap:wrap; }
+    .tiny-links a{ color: rgba(234,240,255,.62); }
+    .tiny-links a:hover{ color: var(--text); }
+    @media (max-width: 980px){
+      .hero-grid{ grid-template-columns: 1fr; }
+    .hero-grid > aside{ align-self: start; }
+      .grid3{ grid-template-columns: 1fr; }
+      .grid2{ grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px){
+      .links{ display:none; }
+      .stats{ grid-template-columns: 1fr; }
+      .cta{ flex-direction: column; align-items:flex-start; }
+    }
+    html{ scroll-behavior:smooth; }
+    @media (prefers-reduced-motion: no-preference){
+      .reveal{ opacity:0; transform: translateY(10px); transition: .7s ease; }
+      .reveal.show{ opacity:1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap">
+      <div class="row">
+        <a class="brand" href="#top" aria-label="PrimeDesk">
+          <img src="logo.png" alt="PrimeDesk" />
+        </a>
+
+        <nav class="links" aria-label="Navegação">
+  <a href="#modulos">Módulos</a>
+  <a href="#planos">Planos</a>
+  <a href="#telas">Telas</a>
+  <a href="#beneficios">Benefícios</a>
+  <a href="#implantacao">Implantação</a>
+  <a href="#contato">Contato</a>
+</nav>
+
+        <a class="btn primary" href="https://wa.me/5589994716436?text=Ol%C3%A1!%20Gostaria%20de%20uma%20demonstra%C3%A7%C3%A3o%20do%20PrimeDesk." target="_blank" rel="noopener">
+          Solicitar demonstração
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-grid">
+          <div>
+            <div class="kicker"><span class="dot"></span>PrimeDesk • Cadastro Único • Assistência Social</div>
+            <h1>Gestão completa do Cadastro Único: atendimentos, visitas domiciliares e consulta rápida à base.</h1>
+            <p>
+  O <strong>PrimeDesk</strong> foi feito para Secretarias de Assistência Social e para a rotina do <strong>Cadastro Único</strong>:
+  <strong>registrar atendimentos</strong> com protocolo, <strong>planejar e registrar visitas domiciliares</strong> e
+  <strong>consultar dados do CadÚnico</strong> de forma rápida — com <strong>segurança</strong>, <strong>perfis de acesso</strong> e relatórios para gestão.
+</p>
+            <div class="actions">
+              <a class="btn primary" href="#modulos">Ver recursos</a>
+              <a class="btn" href="#contato">Agendar demonstração</a>
+            </div>
+          </div>
+
+          <aside class="glass hero-card reveal">
+            <div class="tag">Visão geral</div>
+            <p style="margin:0 0 14px;">
+              Projetado para aumentar produtividade e padronizar o atendimento, sem complicar o dia a dia da equipe.
+            </p>
+            <div class="stats">
+              <div class="stat"><b>Atendimentos</b><span>protocolo e histórico</span></div>
+              <div class="stat"><b>Visitas</b><span>planejamento e registro</span></div>
+              <div class="stat"><b>Consulta CadÚnico</b><span>busca rápida</span></div>
+              <div class="stat"><b>LGPD</b><span>perfis e auditoria</span></div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section id="modulos" class="section">
+  <div class="wrap">
+    <h2>Módulos do PrimeDesk</h2>
+    <p class="sub">
+      Um sistema único para o setor do Cadastro Único: do atendimento ao acompanhamento em campo, com consulta rápida de dados e visão gerencial.
+    </p>
+
+    <div class="grid3">
+      <div class="glass card reveal">
+        <div class="tag">Atendimentos</div>
+        <h3>Registro com protocolo</h3>
+        <p>Cadastre atendimentos com protocolo, tipo, motivo, status, responsável, observações e anexos — com rastreabilidade do início ao encerramento.</p>
+      </div>
+
+      <div class="glass card reveal">
+        <div class="tag">Triagem</div>
+        <h3>Fila e organização</h3>
+        <p>Controle demanda por prioridade, status e filtros. Distribua demandas por equipe e acompanhe o andamento do dia.</p>
+      </div>
+
+      <div class="glass card reveal">
+        <div class="tag">Histórico</div>
+        <h3>Visão do cidadão</h3>
+        <p>Centralize histórico de atendimentos e movimentações para consultas rápidas durante o atendimento.</p>
+      </div>
+
+      <div class="glass card reveal">
+        <div class="tag">Visitas domiciliares</div>
+        <h3>Planejamento e registro</h3>
+        <p>Organize agendas/rotas, registre visitas, resultados e encaminhamentos — mantendo evidências e padronização.</p>
+      </div>
+
+      <div class="glass card reveal">
+        <div class="tag">Consulta CadÚnico</div>
+        <h3>Busca rápida na base</h3>
+        <p>Consulte informações do Cadastro Único com agilidade para apoiar o atendimento e reduzir retrabalho.</p>
+      </div>
+
+      <div class="glass card reveal">
+        <div class="tag">Gestão e LGPD</div>
+        <h3>Relatórios + perfis</h3>
+        <p>Indicadores por período e tipo, exportação (CSV) e controle de acesso por perfis, apoiando governança e LGPD.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+    <section id="planos" class="section">
+  <div class="wrap">
+    <h2>Planos: Local ou Online</h2>
+    <p class="sub">
+      Você escolhe a modalidade ideal para o município. Ambas incluem atualização e suporte, variando a forma de hospedagem e operação.
+      <em>Valores abaixo são demonstrativos e podem ser ajustados na proposta.</em>
+    </p>
+
+    <div class="grid2">
+      <div class="glass card reveal">
+        <div class="tag">PrimeDesk Local</div>
+        <h3>Licença anual + instalação no servidor do município</h3>
+        <p><strong>R$ 6.900,00/ano</strong></p>
+        <p style="margin-top:10px; margin-bottom:0;">
+          Inclui: instalação orientada, perfis de acesso, atualizações durante o contrato e suporte em horário comercial.
+          Indicado para prefeituras que preferem manter a infraestrutura local.
+        </p>
+      </div>
+
+      <div class="glass card reveal">
+        <div class="tag">PrimeDesk Online</div>
+        <h3>Assinatura anual com acesso via internet</h3>
+        <p><strong>R$ 8.900,00/ano</strong></p>
+        <p style="margin-top:10px; margin-bottom:0;">
+          Inclui: hospedagem, backups, SSL, atualizações contínuas e suporte.
+          Indicado para equipes com múltiplas unidades e necessidade de acesso de qualquer lugar.
+        </p>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;" class="cta glass reveal">
+      <div>
+        <h3>Quer receber uma proposta oficial?</h3>
+        <p>Envie município/UF e a modalidade desejada (Local ou Online). Eu retorno com proposta anual e plano de implantação.</p>
+      </div>
+      <div style="display:flex; gap: 10px; flex-wrap:wrap;">
+        <a class="btn primary" href="https://wa.me/5589994716436?text=Ol%C3%A1!%20Quero%20uma%20proposta%20do%20PrimeDesk%20(Local%20ou%20Online).%20Pode%20me%20ajudar%3F" target="_blank" rel="noopener">Pedir proposta</a>
+        <a class="btn" href="#contato">Falar agora</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="telas" class="section">
+      <div class="wrap">
+        <h2>Como funciona na prática</h2>
+        <p class="sub">
+          Prévias ilustrativas do sistema. O PrimeDesk cobre <strong>atendimentos</strong>, <strong>visitas domiciliares</strong> e <strong>indicadores</strong>.
+          (Imagens demonstrativas do layout do sistema.)
+        </p>
+
+        <div class="grid2 shots-grid">
+
+<div class="shot glass reveal">
+  <div class="thumb"><img src="lista_atendimentos.png" alt="Tela de lista de atendimentos" /></div>
+  <h3>Lista de atendimentos</h3>
+  <p>Acompanhe protocolos, status e tipos de atendimento, com filtros e ações rápidas.</p>
+</div>
+
+<div class="shot glass reveal">
+  <div class="thumb"><img src="lista_visitas.png" alt="Tela de lista de visitas domiciliares" /></div>
+  <h3>Visitas domiciliares</h3>
+  <p>Controle agendamentos e finalizações, com filtros por tipo, setor e status.</p>
+</div>
+
+<div class="shot glass reveal">
+  <div class="thumb"><img src="relatorios.png" alt="Tela de relatórios e indicadores" /></div>
+  <h3>Relatórios e exportação</h3>
+  <p>Dashboard por período, setor e status, com geração de relatórios e exportação.</p>
+</div>
+
+<div class="shot glass reveal">
+  <div class="thumb"><img src="buscar.png" alt="Tela de busca de pessoa na base do CadÚnico" /></div>
+  <h3>Busca na base</h3>
+  <p>Localize rapidamente pelo nome, CPF (parcial ou completo) ou nome da mãe.</p>
+</div>
+
+<div class="shot glass reveal">
+  <div class="thumb"><img src="registrar_atendimento.png" alt="Tela de registrar atendimento" /></div>
+  <h3>Registrar atendimento</h3>
+  <p>Registro objetivo por CPF, setor e tipo de atendimento, com preenchimento rápido.</p>
+</div>
+
+<div class="shot glass reveal">
+  <div class="thumb"><img src="registrar_visitas.png" alt="Tela de registrar visita domiciliar" /></div>
+  <h3>Registrar visita</h3>
+  <p>Cadastre visitas com dados essenciais, endereço, zona, referência e responsável.</p>
+</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="beneficios" class="section">
+      <div class="wrap">
+        <h2>Benefícios diretos para a Secretaria</h2>
+        <p class="sub">
+          Um atendimento mais organizado — e com acompanhamento em campo — melhora a experiência do cidadão, reduz retrabalho e entrega dados confiáveis para a gestão.
+        </p>
+
+        <div class="grid3">
+          <div class="glass card reveal">
+            <div class="tag">Produtividade</div>
+            <h3>Mais atendimentos por dia</h3>
+            <p>Fila e registro objetivo aceleram o fluxo e evitam perda de informações.</p>
+          </div>
+
+          <div class="glass card reveal">
+            <div class="tag">Qualidade</div>
+            <h3>Padronização</h3>
+            <p>Campos e status configuráveis para reduzir inconsistências e melhorar a qualidade do registro.</p>
+          </div>
+
+          <div class="glass card reveal">
+            <div class="tag">Transparência</div>
+            <h3>Protocolo e rastreio</h3>
+            <p>Histórico claro do que foi feito, por quem e quando — facilitando supervisão e auditoria.</p>
+          </div>
+
+          <div class="glass card reveal">
+            <div class="tag">Gestão</div>
+            <h3>Indicadores prontos</h3>
+            <p>Relatórios por período, tipo e status para apoiar decisões, metas e prestação de contas.</p>
+          </div>
+
+          <div class="glass card reveal">
+            <div class="tag">Segurança</div>
+            <h3>Perfis e LGPD</h3>
+            <p>Acesso por perfil, boas práticas de proteção de dados e registro de ações para governança.</p>
+          </div>
+
+          <div class="glass card reveal">
+            <div class="tag">Adoção</div>
+            <h3>Fácil de treinar</h3>
+            <p>Interface simples e orientada ao trabalho real do atendimento, com suporte na implantação.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="implantacao" class="section">
+      <div class="wrap">
+        <h2>Implantação por etapas</h2>
+        <p class="sub">
+          Um caminho seguro para começar rápido e evoluir com estabilidade: configuração, treinamento e acompanhamento.
+        </p>
+
+        <div class="grid3">
+          <div class="glass card reveal">
+            <div class="tag">Etapa 1</div>
+            <h3>Diagnóstico e configuração</h3>
+            <p>Mapeamento do fluxo do município, criação de tipos/status e ajustes de perfis de acesso.</p>
+          </div>
+
+          <div class="glass card reveal">
+            <div class="tag">Etapa 2</div>
+            <h3>Treinamento da equipe</h3>
+            <p>Treinamento prático com exemplos reais, padronização do uso e definição do protocolo interno.</p>
+          </div>
+
+          <div class="glass card reveal">
+            <div class="tag">Etapa 3</div>
+            <h3>Go-live e acompanhamento</h3>
+            <p>Entrada em produção com suporte próximo, ajustes finos e relatórios iniciais para a coordenação.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contato" class="section">
+      <div class="wrap">
+        <div class="cta glass reveal">
+          <div>
+            <h3>Quer uma demonstração do PrimeDesk no seu município?</h3>
+            <p>
+              Me envie <strong>nome</strong>, <strong>município/UF</strong> e um <strong>telefone</strong> (ou e-mail).
+              Retorno com uma proposta de demonstração e um plano de implantação por etapas.
+            </p>
+          </div>
+          <div style="display:flex; gap: 10px; flex-wrap:wrap;">
+            <a class="btn primary" href="https://wa.me/5589994716436?text=Ol%C3%A1!%20Gostaria%20de%20uma%20demonstra%C3%A7%C3%A3o%20do%20PrimeDesk." target="_blank" rel="noopener">Chamar no WhatsApp</a>
+            <a class="btn" href="#top">Voltar ao topo ↑</a>
+          </div>
+        </div>
+
+        <p style="margin-top: 14px; color: rgba(234,240,255,.58); font-size: 13px;">
+          Dica: para personalizar, edite no <strong>index.html</strong> o nome do sistema, textos e o link do WhatsApp.
+        </p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="wrap">
+        <div class="row">
+          <div>
+            <div style="font-weight:800; color: rgba(234,240,255,.78);">PrimeDesk</div>
+            <div style="margin-top:2px;">Soluções para Secretarias de Assistência Social</div>
+          </div>
+          <div class="tiny-links">
+  <a href="#modulos">Módulos</a>
+  <a href="#planos">Planos</a>
+  <a href="#telas">Telas</a>
+  <a href="#beneficios">Benefícios</a>
+  <a href="#implantacao">Implantação</a>
+  <a href="#contato">Contato</a>
+</div>
+        </div>
+
+        <div style="margin-top: 12px;">
+          © <span id="year"></span> PrimeDesk. Todos os direitos reservados.
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- Lightbox para ver as telas com mais detalhes -->
+  <div class="lb" id="lb" aria-hidden="true">
+    <div class="panel" role="dialog" aria-modal="true" aria-label="Visualização da tela">
+      <div class="top">
+        <span id="lbTitle">Visualização</span>
+        <button class="close" type="button" id="lbClose" aria-label="Fechar">Fechar ✕</button>
+      </div>
+      <div class="imgwrap"><img id="lbImg" alt="" /></div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+    const items = document.querySelectorAll(".reveal");
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if(e.isIntersecting) e.target.classList.add("show"); });
+    }, { threshold: 0.12 });
+    items.forEach(el => io.observe(el));
+
+    // Lightbox: clique para ampliar as imagens das telas
+    const lb = document.getElementById('lb');
+    const lbImg = document.getElementById('lbImg');
+    const lbTitle = document.getElementById('lbTitle');
+    const lbClose = document.getElementById('lbClose');
+
+    const openLb = (src, title) => {
+      lbImg.src = src;
+      lbImg.alt = title || 'Tela do sistema';
+      lbTitle.textContent = title || 'Visualização';
+      lb.classList.add('show');
+      lb.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    };
+    const closeLb = () => {
+      lb.classList.remove('show');
+      lb.setAttribute('aria-hidden', 'true');
+      lbImg.src = '';
+      document.body.style.overflow = '';
+    };
+
+    document.querySelectorAll('.shot .thumb img').forEach(img => {
+      img.addEventListener('click', () => {
+        const title = img.closest('.shot')?.querySelector('h3')?.textContent?.trim();
+        openLb(img.getAttribute('src'), title);
+      });
+    });
+    lbClose.addEventListener('click', closeLb);
+    lb.addEventListener('click', (e) => { if(e.target === lb) closeLb(); });
+    document.addEventListener('keydown', (e) => { if(e.key === 'Escape' && lb.classList.contains('show')) closeLb(); });
+  </script>
+</body>
+</html>
