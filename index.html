@@ -121,7 +121,12 @@
     .split .card{ height:100%; }
     .list{ margin: 10px 0 0; padding: 0; list-style:none; }
     .list li{ margin: 10px 0; color: var(--muted); line-height:1.55; }
-    .list li b{ color: var(--text); }
+    
+    /* Hero bullets */
+    .bullets{ margin: 14px 0 0; padding: 0; list-style:none; display:grid; gap: 10px; }
+    .bullets li{ padding-left: 14px; position:relative; color: var(--muted); line-height:1.55; }
+    .bullets li::before{ content:""; position:absolute; left:0; top:.65em; width:6px; height:6px; border-radius:99px; background: linear-gradient(90deg, var(--ok), var(--brand2)); }
+    .bullets li b{ color: var(--text); }
 
     /* Testimonials */
     .quote{ position:relative; }
@@ -422,8 +427,7 @@
 
         <nav class="links" aria-label="Navegação">
   <a href="#modulos">Módulos</a>
-  <a href="#planos">Planos</a>
-  <a href="#telas">Telas</a>
+<a href="#telas">Telas</a>
   <a href="#beneficios">Benefícios</a>
   <a href="#implantacao">Implantação</a>
   <a href="#faq">FAQ</a>
@@ -446,10 +450,13 @@
             <div class="kicker"><span class="dot"></span>PrimeDesk • CRAS e CREAS • Assistência Social</div>
             <h1>Registre atendimentos do CRAS e CREAS e feche o mês com relatórios prontos para o RMA.</h1>
             <p>
-  O <strong>PrimeDesk</strong> foi feito para Secretarias de Assistência Social e para a rotina do <strong>CRAS</strong> e do <strong>CREAS</strong>:
-  <strong>registrar atendimentos</strong> por unidade e tipo, <strong>registrar visitas domiciliares</strong> e
-  <strong>gerar relatórios mensais</strong> (com totais prontos para o RMA) — com <strong>segurança</strong>, <strong>perfis de acesso</strong> e rastreabilidade.
+  Sistema para <strong>Secretarias de Assistência Social</strong> que organiza <strong>atendimentos</strong> e <strong>visitas</strong> — e entrega <strong>relatórios do mês</strong> com totais prontos para o RMA.
 </p>
+<ul class="bullets">
+  <li><b>Protocolo + histórico</b> do cidadão em um só lugar</li>
+  <li><b>Visitas domiciliares</b> padronizadas por unidade e tipo</li>
+  <li><b>Relatórios mensais</b> por unidade/tipo + exportação</li>
+</ul>
             <div class="actions">
               <a class="btn primary" href="#modulos">Ver recursos</a>
               <a class="btn" href="#contato">Agendar demonstração</a>
@@ -486,7 +493,7 @@
               Ideal para padronizar a rotina e dar visibilidade para a gestão.
             </p>
             <div style="display:flex; gap: 10px; flex-wrap:wrap; margin-top: 14px;">
-              <a class="btn primary" href="https://wa.me/5589994716436?text=Ol%C3%A1!%20Quero%20uma%20demonstra%C3%A7%C3%A3o%20do%20PrimeDesk%20em%201%20minuto.%20Pode%20me%20mostrar%20o%20fluxo%20(Atendimento%20%E2%86%92%20Visita%20%E2%86%92%20Relat%C3%B3rio)%3F" target="_blank" rel="noopener">Ver ao vivo (WhatsApp)</a>
+              <a class="btn primary" href="https://wa.me/5589994716436?text=Ol%C3%A1!%20Quero%20ver%20o%20PrimeDesk%20ao%20vivo%20no%20meu%20cen%C3%A1rio.%20Munic%C3%ADpio%2FUF%3A%20____%20%7C%20Unidades%3A%20____%20%7C%20Usu%C3%A1rios%3A%20____" target="_blank" rel="noopener">Agendar demonstração</a>
               <a class="btn" href="#telas">Ver telas</a>
             </div>
           </div>
@@ -511,52 +518,34 @@
       </div>
     </section>
 
+    
     <section id="modulos" class="section">
-  <div class="wrap">
-    <h2>Módulos do PrimeDesk</h2>
-    <p class="sub">
-      Um sistema único para o CRAS e o CREAS: do registro diário ao fechamento do mês, com relatórios para o RMA e visão gerencial.
-    </p>
+      <div class="wrap">
+        <h2>O que o PrimeDesk resolve</h2>
+        <p class="sub">Menos retrabalho no dia a dia — e fechamento do mês muito mais rápido.</p>
 
-    <div class="grid3">
-      <div class="glass card reveal">
-        <div class="tag">Atendimentos</div>
-        <h3>Registro com protocolo</h3>
-        <p>Cadastre atendimentos com protocolo, tipo, motivo, status, responsável, observações e anexos — com rastreabilidade do início ao encerramento.</p>
-      </div>
+        <div class="grid3">
+          <div class="glass card reveal">
+            <div class="tag">Atendimentos</div>
+            <h3>Registro com protocolo</h3>
+            <p>Cadastre atendimentos por unidade e tipo, com protocolo, status e histórico do cidadão.</p>
+          </div>
 
-      <div class="glass card reveal">
-        <div class="tag">Triagem</div>
-        <h3>Fila e organização</h3>
-        <p>Controle demanda por prioridade, status e filtros. Distribua demandas por equipe e acompanhe o andamento do dia.</p>
-      </div>
+          <div class="glass card reveal">
+            <div class="tag">Visitas</div>
+            <h3>Tipos por unidade</h3>
+            <p>Registre visitas domiciliares de forma padronizada, com tipos por unidade e acompanhamento do responsável.</p>
+          </div>
 
-      <div class="glass card reveal">
-        <div class="tag">Histórico</div>
-        <h3>Visão do cidadão</h3>
-        <p>Centralize histórico de atendimentos e movimentações para consultas rápidas durante o atendimento.</p>
+          <div class="glass card reveal">
+            <div class="tag">Relatórios</div>
+            <h3>Mês pronto para o RMA</h3>
+            <p>Totais mensais por unidade e por tipo, com indicadores por período e exportação quando necessário.</p>
+          </div>
+        </div>
       </div>
+    </section>
 
-      <div class="glass card reveal">
-        <div class="tag">Visitas domiciliares</div>
-        <h3>Planejamento e registro</h3>
-        <p>Organize agendas/rotas, registre visitas, resultados e encaminhamentos — mantendo evidências e padronização.</p>
-      </div>
-
-      <div class="glass card reveal">
-        <div class="tag">RMA</div>
-        <h3>Totais mensais por unidade</h3>
-        <p>Gere relatórios do mês por CRAS e CREAS, com totais por tipo de atendimento para facilitar o preenchimento do RMA.</p>
-      </div>
-
-      <div class="glass card reveal">
-        <div class="tag">Gestão e LGPD</div>
-        <h3>Relatórios + perfis</h3>
-        <p>Indicadores por período e tipo, exportação (CSV) e controle de acesso por perfis, apoiando governança e LGPD.</p>
-      </div>
-    </div>
-  </div>
-</section>
 
     <div class="wrap">
       <div style="margin: 10px 0 26px;" class="cta glass reveal">
@@ -566,99 +555,10 @@
         </div>
         <div style="display:flex; gap: 10px; flex-wrap:wrap;">
           <a class="btn primary" href="https://wa.me/5589994716436?text=Ol%C3%A1!%20Quero%20ver%20o%20PrimeDesk%20ao%20vivo%20no%20meu%20cen%C3%A1rio.%20Munic%C3%ADpio%2FUF%3A%20____%20%7C%20Unidades%3A%20____%20%7C%20Usu%C3%A1rios%3A%20____" target="_blank" rel="noopener">Agendar demonstração</a>
-          <a class="btn" href="#planos">Ver investimento</a>
-        </div>
+</div>
       </div>
     </div>
 
-    <section id="antesdepois" class="section">
-      <div class="wrap">
-        <h2>Antes e depois (na rotina do CRAS/CREAS)</h2>
-        <p class="sub">Uma visão direta do que muda quando o atendimento e o acompanhamento em campo ficam padronizados e rastreáveis.</p>
-
-        <div class="split">
-          <div class="glass card reveal">
-            <div class="tag">Antes</div>
-            <h3>Informação espalhada e retrabalho</h3>
-            <ul class="list">
-              <li><b>Sem padrão:</b> cada servidor registra de um jeito.</li>
-              <li><b>Difícil rastrear:</b> não há protocolo/linha do tempo confiável.</li>
-              <li><b>Visitas sem histórico:</b> registros ficam em papel/planilhas.</li>
-              <li><b>Gestão sem números:</b> relatórios viram tarefa manual.</li>
-            </ul>
-          </div>
-
-          <div class="glass card reveal">
-            <div class="tag">Depois</div>
-            <h3>Fluxo organizado + visão gerencial</h3>
-            <ul class="list">
-              <li><b>Protocolo e histórico:</b> tudo registrado, do início ao encerramento.</li>
-              <li><b>Fila e status:</b> controle por prioridade e acompanhamento do andamento.</li>
-              <li><b>Visitas padronizadas:</b> registro, evidências e encaminhamentos.</li>
-              <li><b>Relatórios rápidos:</b> indicadores por período/setor/status com exportação.</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="depoimentos" class="section">
-      <div class="wrap">
-        <h2>O que quem usa comenta</h2>
-        <p class="sub">Prova social simples e direta.</p>
-
-        <div class="grid3">
-          <div class="glass card reveal quote">
-            <div class="badge"><span class="star"></span> Atendimento mais rápido</div>
-            <p class="q">“A fila organizada e o protocolo deram clareza. A equipe deixou de ‘caçar informação’ e o atendimento ficou mais fluido.”</p>
-            <div class="who"><b>Coordenação do CRAS/CREAS</b><span style="color:var(--muted); font-weight:700;">• Secretaria Municipal</span></div>
-          </div>
-
-          <div class="glass card reveal quote">
-            <div class="badge"><span class="star"></span> Visitas com histórico</div>
-            <p class="q">“O registro de visitas padronizado ajudou muito: fica tudo documentado e fácil de acompanhar o que foi encaminhado.”</p>
-            <div class="who"><b>Equipe de campo</b><span style="color:var(--muted); font-weight:700;">• Assistência Social</span></div>
-          </div>
-
-          <div class="glass card reveal quote">
-            <div class="badge"><span class="star"></span> Relatórios sem dor</div>
-            <p class="q">“Antes era planilha e retrabalho. Agora conseguimos tirar indicadores por período e responder demandas de gestão com rapidez.”</p>
-            <div class="who"><b>Gestão</b><span style="color:var(--muted); font-weight:700;">• Coordenação</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="planos" class="section">
-  <div class="wrap">
-    <h2>Plano e investimento</h2>
-        <p class="sub">
-      Um único plano anual com implantação orientada, atualizações contínuas e suporte.
-      Ideal para organizar atendimentos, visitas domiciliares e relatórios com rastreabilidade e governança.
-    </p>
-<div class="grid2">
-      <div class="glass card reveal" style="grid-column: 1 / -1;">
-        <div class="tag">PrimeDesk</div>
-        <h3>Licença anual + implantação</h3>
-        <p><strong>R$ 8.900,00/ano</strong></p>
-        <p style="margin-top:10px; margin-bottom:0;">
-          Inclui: configuração inicial, perfis de acesso, atualizações durante o contrato e suporte em horário comercial.
-        </p>
-      </div>
-    </div>
-
-    <div style="margin-top:14px;" class="cta glass reveal">
-      <div>
-        <h3>Quer receber uma proposta oficial?</h3>
-        <p>Envie município/UF e um breve resumo da sua demanda (ex.: número de unidades/usuários). Eu retorno com a proposta e o plano de implantação.</p>
-      </div>
-      <div style="display:flex; gap: 10px; flex-wrap:wrap;">
-        <a class="btn primary" href="https://wa.me/5589994716436?text=Ol%C3%A1!%20Quero%20uma%20proposta%20do%20PrimeDesk.%20Pode%20me%20ajudar%3F" target="_blank" rel="noopener">Pedir proposta</a>
-        <a class="btn" href="#contato">Falar agora</a>
-      </div>
-    </div>
-  </div>
-</section>
 
 <section id="telas" class="section">
       <div class="wrap">
@@ -709,52 +609,34 @@
       </div>
     </section>
 
+    
     <section id="beneficios" class="section">
       <div class="wrap">
-        <h2>Benefícios diretos para a Secretaria</h2>
-        <p class="sub">
-          Um atendimento mais organizado — e com acompanhamento em campo — melhora a experiência do cidadão, reduz retrabalho e entrega dados confiáveis para a gestão.
-        </p>
+        <h2>Benefícios diretos</h2>
+        <p class="sub">O essencial para organizar o atendimento, documentar o acompanhamento e entregar números confiáveis para a gestão.</p>
 
         <div class="grid3">
           <div class="glass card reveal">
-            <div class="tag">Produtividade</div>
-            <h3>Mais atendimentos por dia</h3>
-            <p>Fila e registro objetivo aceleram o fluxo e evitam perda de informações.</p>
+            <div class="tag">Fechamento</div>
+            <h3>Mês mais rápido</h3>
+            <p>Relatórios com totais por unidade e tipo — facilitando o preenchimento do RMA e a prestação de contas.</p>
           </div>
 
           <div class="glass card reveal">
-            <div class="tag">Qualidade</div>
-            <h3>Padronização</h3>
-            <p>Campos e status configuráveis para reduzir inconsistências e melhorar a qualidade do registro.</p>
+            <div class="tag">Padronização</div>
+            <h3>Menos retrabalho</h3>
+            <p>Campos e fluxos consistentes para a equipe registrar rápido e do mesmo jeito, em todas as unidades.</p>
           </div>
 
           <div class="glass card reveal">
-            <div class="tag">Transparência</div>
-            <h3>Protocolo e rastreio</h3>
-            <p>Histórico claro do que foi feito, por quem e quando — facilitando supervisão e auditoria.</p>
-          </div>
-
-          <div class="glass card reveal">
-            <div class="tag">Gestão</div>
-            <h3>Indicadores prontos</h3>
-            <p>Relatórios por período, tipo e status para apoiar decisões, metas e prestação de contas.</p>
-          </div>
-
-          <div class="glass card reveal">
-            <div class="tag">Segurança</div>
-            <h3>Perfis e LGPD</h3>
-            <p>Acesso por perfil, boas práticas de proteção de dados e registro de ações para governança.</p>
-          </div>
-
-          <div class="glass card reveal">
-            <div class="tag">Adoção</div>
-            <h3>Fácil de treinar</h3>
-            <p>Interface simples e orientada ao trabalho real do atendimento, com suporte na implantação.</p>
+            <div class="tag">Governança</div>
+            <h3>Histórico + controle de acesso</h3>
+            <p>Histórico do cidadão e rastreabilidade de ações, com perfis de acesso (boas práticas de LGPD).</p>
           </div>
         </div>
       </div>
     </section>
+
 
     <section id="implantacao" class="section">
       <div class="wrap">
@@ -785,42 +667,29 @@
       </div>
     </section>
 
+    
     <section id="faq" class="section">
       <div class="wrap">
         <h2>Perguntas frequentes</h2>
-        <p class="sub">Respostas rápidas para as dúvidas mais comuns antes de solicitar proposta ou demonstração.</p>
+        <p class="sub">Respostas rápidas antes de falar comigo no WhatsApp.</p>
 
         <details class="faq glass reveal">
           <summary>Como funciona a implantação? <span class="chev">▾</span></summary>
-          <div class="ans">A implantação é por etapas: diagnóstico/configuração, treinamento prático e acompanhamento no go-live. O objetivo é começar rápido, com padronização e estabilidade.</div>
-        </details>
-
-        <details class="faq glass reveal">
-          <summary>O que está incluso no plano anual? <span class="chev">▾</span></summary>
-          <div class="ans">Inclui licença anual, configuração inicial, perfis de acesso, atualizações durante o contrato e suporte em horário comercial.</div>
+          <div class="ans">Implantação por etapas: configuração inicial (unidades/tipos/perfis), treinamento prático e acompanhamento no início do uso. O objetivo é começar rápido e com padronização.</div>
         </details>
 
         <details class="faq glass reveal">
           <summary>Consigo tirar relatórios e exportar dados? <span class="chev">▾</span></summary>
-          <div class="ans">Sim. O PrimeDesk oferece indicadores por período/setor/status e exportação (CSV), facilitando prestação de contas e acompanhamento gerencial.</div>
+          <div class="ans">Sim. Você filtra por período/unidade/tipo/status e pode exportar (CSV) quando precisar.</div>
         </details>
 
         <details class="faq glass reveal">
-          <summary>Como ficam LGPD e controle de acesso? <span class="chev">▾</span></summary>
-          <div class="ans">Você define perfis de acesso por função e o sistema mantém rastreabilidade de ações, ajudando governança e boas práticas de proteção de dados.</div>
-        </details>
-
-        <details class="faq glass reveal">
-          <summary>O sistema atende múltiplas unidades/equipes? <span class="chev">▾</span></summary>
-          <div class="ans">Sim. A ideia é padronizar o fluxo entre unidades e equipes (atendimento e campo), mantendo histórico único do cidadão e visão de gestão.</div>
-        </details>
-
-        <details class="faq glass reveal">
-          <summary>Como solicito uma proposta oficial? <span class="chev">▾</span></summary>
-          <div class="ans">Envie município/UF e um resumo (unidades/usuários e o fluxo atual). Eu retorno com a proposta e o plano de implantação.</div>
+          <summary>O sistema atende múltiplas unidades e equipes? <span class="chev">▾</span></summary>
+          <div class="ans">Sim. Você configura unidades e tipos por unidade, mantendo histórico único do cidadão e visão gerencial consolidada.</div>
         </details>
       </div>
     </section>
+
 
     <section id="contato" class="section">
       <div class="wrap">
@@ -834,12 +703,12 @@
           </div>
           <div style="display:flex; gap: 10px; flex-wrap:wrap;">
             <a class="btn primary" href="https://wa.me/5589994716436?text=Ol%C3%A1!%20Gostaria%20de%20uma%20demonstra%C3%A7%C3%A3o%20do%20PrimeDesk." target="_blank" rel="noopener">Chamar no WhatsApp</a>
+            <a class="btn" href="https://wa.me/5589994716436?text=Ol%C3%A1!%20Quero%20uma%20proposta%20do%20PrimeDesk.%20Pode%20me%20ajudar%3F" target="_blank" rel="noopener">Pedir proposta</a>
             <a class="btn" href="#top">Voltar ao topo ↑</a>
           </div>
         </div>
 
         <p style="margin-top: 14px; color: rgba(234,240,255,.58); font-size: 13px;">
-          Dica: para personalizar, edite no <strong>index.html</strong> o nome do sistema, textos e o link do WhatsApp.
         </p>
       </div>
     </section>
@@ -853,8 +722,7 @@
           </div>
           <div class="tiny-links">
   <a href="#modulos">Módulos</a>
-  <a href="#planos">Planos</a>
-  <a href="#telas">Telas</a>
+<a href="#telas">Telas</a>
   <a href="#beneficios">Benefícios</a>
   <a href="#implantacao">Implantação</a>
   <a href="#faq">FAQ</a>
@@ -881,7 +749,7 @@
   </div>
 
   <!-- Botão flutuante do WhatsApp (CTA sempre visível) -->
-  <a class="wa-float" href="https://wa.me/5589994716436?text=Ol%C3%A1!%20Quero%20agendar%20uma%20demonstra%C3%A7%C3%A3o%20do%20PrimeDesk." target="_blank" rel="noopener" aria-label="Abrir WhatsApp">
+  <a class="wa-float" href="https://wa.me/5589994716436?text=Ol%C3%A1!%20Gostaria%20de%20uma%20demonstra%C3%A7%C3%A3o%20do%20PrimeDesk." target="_blank" rel="noopener" aria-label="Abrir WhatsApp">
     <span class="bubble" aria-hidden="true">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M20.52 3.48A11.83 11.83 0 0 0 12.02 0C5.4 0 .06 5.34.06 11.96c0 2.11.55 4.17 1.6 5.99L0 24l6.2-1.62a11.92 11.92 0 0 0 5.81 1.48h.01c6.62 0 11.96-5.34 11.96-11.96 0-3.19-1.24-6.19-3.46-8.42ZM12.02 21.7h-.01a9.8 9.8 0 0 1-5-1.38l-.36-.21-3.68.96.98-3.59-.23-.37a9.76 9.76 0 0 1-1.5-5.15c0-5.4 4.4-9.8 9.8-9.8a9.74 9.74 0 0 1 6.93 2.87 9.74 9.74 0 0 1 2.87 6.93c0 5.4-4.4 9.8-9.8 9.8Zm5.68-7.76c-.31-.16-1.84-.91-2.13-1.01-.29-.11-.5-.16-.71.16-.21.31-.82 1.01-1 1.22-.18.21-.37.23-.68.08-.31-.16-1.32-.49-2.51-1.56-.93-.83-1.55-1.86-1.73-2.17-.18-.31-.02-.48.14-.63.14-.14.31-.37.47-.55.16-.18.21-.31.31-.52.1-.21.05-.39-.03-.55-.08-.16-.71-1.7-.97-2.33-.26-.62-.52-.54-.71-.55h-.6c-.21 0-.55.08-.84.39-.29.31-1.1 1.07-1.1 2.6s1.13 3.02 1.29 3.23c.16.21 2.23 3.41 5.39 4.78.75.32 1.34.51 1.8.65.76.24 1.45.21 2 .13.61-.09 1.84-.75 2.1-1.47.26-.72.26-1.34.18-1.47-.08-.13-.29-.21-.6-.37Z" fill="white" fill-opacity="0.95"/>
