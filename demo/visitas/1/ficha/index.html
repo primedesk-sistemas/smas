@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>COMPROVANTE DE VISITA - Visitante 1</title>
+  <style>
+    header, .nav, #toast-container { display:none !important; }
+    body{ background:#fff !important; color:#111 !important; font-family: Arial, sans-serif; }
+    main{ padding:0; }
+    .container{ max-width: 900px; margin:0 auto; }
+
+    .no-print{ display:block; }
+    .print-toolbar{
+      display:flex; justify-content:flex-end; gap:10px;
+      padding:14px 0; border-bottom:1px solid rgba(0,0,0,.12);
+      margin-bottom:16px;
+    }
+
+    /* Layout da ficha (visualização na tela) */
+    .sheet{
+      border:1px solid rgba(0,0,0,.20);
+      border-radius:14px;
+      padding:18px;
+      background:#fff;
+    }
+    .sheet + .sheet{ margin-top:14px; }
+
+    .top{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:14px;
+      margin-bottom:12px;
+    }
+    .brand{ font-weight:900; font-size:16px; letter-spacing:.2px; text-transform:uppercase; }
+    .subtitle{ color:rgba(0,0,0,.65); font-size:12px; margin-top:2px; text-transform:uppercase; }
+    .title{ font-size:18px; font-weight:900; margin:4px 0 0 0; }
+    .meta{ text-align:right; font-size:12px; color:rgba(0,0,0,.70); }
+    .meta b{ color:#111; }
+
+    .grid{ display:grid; grid-template-columns: 1.4fr 1fr; gap:10px; }
+    .grid.three{ grid-template-columns: 1.6fr .8fr .8fr; }
+    .grid.two{ grid-template-columns: 1fr 1fr; }
+    .grid.row-ident{ grid-template-columns: 1fr 120px 102px 130px; }
+
+    .field{
+      border:1px solid rgba(0,0,0,.12);
+      border-radius:12px;
+      padding:10px 12px;
+    }
+    .field .k{ font-size:11px; color:rgba(0,0,0,.65); }
+    .field .v{ font-size:13px; font-weight:700; margin-top:3px; white-space:pre-wrap; }
+
+    /* Evita quebra de linha em campos que precisam ficar em uma linha (ex.: Unidade) */
+    .nowrap{ white-space:nowrap !important; overflow:hidden; text-overflow:ellipsis; }
+
+    .section-label{
+      margin:10px 0 6px;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.2px;
+      color:#111;
+    }
+
+    .fam{ width:100%; border-collapse:collapse; font-size:12px; }
+    .fam th, .fam td{
+      border:1px solid rgba(0,0,0,.45);
+      padding:7px 9px;
+      height:54px; /* -10% (antes 60px) */
+      vertical-align:middle;
+    }
+    .fam th{
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.2px;
+      text-transform:uppercase;
+    }
+    .fam .col-n{ width:40px; text-align:center; }
+    .fam .col-cpf{ width:160px; text-align:center; }
+    .fam .col-par{ width:180px; }
+
+    .obs{
+      border:none;
+      border-radius:0;
+      padding:0;
+    }
+    .obs-lines{ display:flex; flex-direction:column; }
+    .obs-lines .line{ height:34px; border-bottom:1px solid rgba(0,0,0,.40); }
+
+    .sign-row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+      margin-top:18px;
+    }
+    .sign{
+      position:relative;
+      height:184px;
+    }
+    .sign:before{
+      content:"";
+      position:absolute; left:0; right:0; top:128px;
+      border-top:1px solid rgba(0,0,0,.35);
+    }
+    .sign .k{
+      position:absolute;
+      left:0; right:0;
+      top:132px;
+      margin:0;
+      font-size:11px;
+      color:rgba(0,0,0,.70);
+      text-align:center;
+      line-height:1.05;
+    }
+
+    .cut{ border-top:1px dashed rgba(0,0,0,.35); margin:12px 0; }
+
+    /* Impressão (A4, 1 página, consistente entre PCs) */
+    @page { size: A4; margin: 6mm; }
+    @media print{
+      *{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .no-print, .print-toolbar{ display:none !important; }
+      html, body{ background:#fff !important; }
+      html{ font-size: 90%; }
+
+      /* Fit extra-safe: garante 1 página mesmo com variações de fonte/driver. */
+      body{ zoom: .93; }
+      .print-fit{ transform: scale(.93); transform-origin: top left; width: calc(100% / .93); }
+
+      body{ margin:0; padding:0; font-family: Arial, sans-serif; }
+      main.container{ max-width:none !important; margin:0 !important; padding:0 !important; }
+      .sheet{ border:1pt solid #000; border-radius:0; padding:6px; break-inside: avoid; page-break-inside: avoid; }
+      .sheet + .sheet{ margin-top:3px; }
+      .top{ margin-bottom:6px; }
+      .brand{ font-size:15px; }
+      .subtitle{ font-size:11px; color:#111; opacity:.85; }
+      .title{ font-size:15px; }
+      .meta{ font-size:11px; color:#111; opacity:.9; }
+      .grid{ gap:6px; }
+      .grid.row-ident{ grid-template-columns: 1fr 120px 102px 130px; }
+      .field{ border:1pt solid #000; border-radius:8px; padding:4px 6px; }
+      .field .k{ font-size:10px; color:#111; opacity:.85; }
+      .field .v{ font-size:13px; margin-top:2px; }
+      .cpf-field .v, .dob-field .v, .tel-field .v{ white-space:nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; text-align:center; }
+      .section-label{ margin:5px 0 2px; font-size:12px; }
+      .fam th, .fam td{ border:1pt solid #000; padding:4px 6px; height:29px; }
+      .fam th{ font-size:10px; }
+      .obs{ border:none; border-radius:0; padding:0; }
+      .obs-lines .line{ height:34px; border-bottom:1pt solid #000; }
+      .cut{ border-top:1pt dashed #000; margin:8px 0; break-inside: avoid; page-break-inside: avoid; }
+      .sign-row{ margin-top:4px; gap:12px; }
+      .sign{ position:relative; height:108px; }
+      .sign:before{ top:78px; border-top:1pt solid #000; }
+      .sign .k{ position:absolute; left:0; right:0; top:82px; margin:0; font-size:11px; color:#111; opacity:.9; line-height:1.05; text-align:center; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container print-fit">
+
+    <!-- VIA DO TÉCNICO (completa) -->
+    <section class="sheet">
+      <div class="top">
+        <div>
+          <div class="brand-lines">
+            <div class="brand">SUA EMPRESA (DEMO)</div>
+            
+              <div class="subtitle">RUA EXEMPLO, 123</div>
+            
+            
+              <div class="subtitle">FORTALEZA - CE</div>
+            
+          </div>
+          <h1 class="title">REGISTRO DE VISITA DOMICILIAR</h1>
+        </div>
+        <div class="meta">
+          <div><b>Código:</b> VST-201</div>
+          <div><b>Registrado em:</b> 2026-02-21 19:15:57.054330</div>
+          <div><b>Data da visita:</b> 2026-02-21 19:15:57.054330</div>
+          <div><b>Pendência:</b> ( ) Sim &nbsp;&nbsp; ( ) Não</div>
+        </div>
+      </div>
+
+      <div class="grid three row-ident">
+        <div class="field"><div class="k">Nome do cidadão</div><div class="v">Visitante 1</div></div>
+        <div class="field cpf-field"><div class="k">CPF</div><div class="v">987.654.321-01</div></div>
+        <div class="field dob-field"><div class="k">Nascimento</div><div class="v"></div></div>
+        <div class="field tel-field"><div class="k">Telefone</div><div class="v">(85) 9 8888-0000</div></div>
+      </div>
+
+      <div class="grid four" style="margin-top:6px; grid-template-columns: 1.36fr .64fr 1.05fr 70px;">
+        <div class="field"><div class="k">Endereço</div><div class="v">Rua Exemplo, 123</div></div>
+        <div class="field"><div class="k">Zona</div><div class="v">—</div></div>
+        <div class="field"><div class="k">Cidade</div><div class="v">Fortaleza</div></div>
+        <div class="field"><div class="k">UF</div><div class="v">CE</div></div>
+      </div>
+
+      <div class="grid four" style="margin-top:6px; grid-template-columns: .98fr .75fr .92fr 1.35fr;">
+        <div class="field"><div class="k">Ponto de referência</div><div class="v">—</div></div>
+        <div class="field"><div class="k">Agente de Saúde</div><div class="v">—</div></div>
+        <div class="field"><div class="k">Motivo da Visita</div><div class="v">—</div></div>
+        <div class="field"><div class="k">Unidade</div><div class="v nowrap">—</div></div>
+      </div>
+
+      <div class="section-label">Composição familiar</div>
+      <table class="fam">
+        <thead>
+          <tr>
+            <th class="col-n">Nº</th>
+            <th>Nome</th>
+            <th class="col-cpf">CPF</th>
+            <th class="col-par">Parentesco</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+            <tr><td class="col-n"></td><td></td><td class="col-cpf"></td><td class="col-par"></td></tr>
+          
+            <tr><td class="col-n"></td><td></td><td class="col-cpf"></td><td class="col-par"></td></tr>
+          
+            <tr><td class="col-n"></td><td></td><td class="col-cpf"></td><td class="col-par"></td></tr>
+          
+            <tr><td class="col-n"></td><td></td><td class="col-cpf"></td><td class="col-par"></td></tr>
+          
+            <tr><td class="col-n"></td><td></td><td class="col-cpf"></td><td class="col-par"></td></tr>
+          
+            <tr><td class="col-n"></td><td></td><td class="col-cpf"></td><td class="col-par"></td></tr>
+          
+        </tbody>
+      </table>
+
+      <div class="section-label">Observações</div>
+      <div class="obs">
+        <div class="obs-lines">
+          <div class="line"></div><div class="line"></div><div class="line"></div>
+        </div>
+      </div>
+
+      <div class="sign-row">
+        <div class="sign"><div class="k">Assinatura do cidadão</div></div>
+        <div class="sign"><div class="k">Assinatura do técnico</div></div>
+      </div>
+    </section>
+
+    <div class="cut"></div>
+
+    <!-- VIA DO CIDADÃO (resumo) -->
+    <section class="sheet">
+      <div class="top">
+        <div>
+          <div class="brand">SUA EMPRESA (DEMO)</div>
+          
+            <div class="subtitle">RUA EXEMPLO, 123</div>
+          
+          
+            <div class="subtitle">FORTALEZA - CE</div>
+          
+          <h2 class="title" style="font-size:16px">COMPROVANTE DE VISITA DOMICILIAR</h2>
+        </div>
+        <div class="meta">
+          <div><b>Código:</b> VST-201</div>
+          <div><b>Data:</b> 2026-02-21 19:15:57.054330</div>
+        </div>
+      </div>
+
+      <div class="grid three" style="grid-template-columns: 1.15fr 120px 102px 1fr;">
+        <div class="field"><div class="k">Nome</div><div class="v">Visitante 1</div></div>
+        <div class="field cpf-field"><div class="k">CPF</div><div class="v">987.654.321-01</div></div>
+        <div class="field dob-field"><div class="k">Nascimento</div><div class="v"></div></div>
+        <div class="field"><div class="k">Endereço</div><div class="v">Rua Exemplo, 123</div></div>
+      </div>
+
+      <div class="grid" style="margin-top:6px; grid-template-columns: .62fr 1.00fr 70px 1.15fr 1.15fr;">
+        <div class="field"><div class="k">Zona</div><div class="v">—</div></div>
+        <div class="field"><div class="k">Cidade</div><div class="v">Fortaleza</div></div>
+        <div class="field"><div class="k">UF</div><div class="v">CE</div></div>
+        <div class="field"><div class="k">Motivo da Visita</div><div class="v">—</div></div>
+        <div class="field"><div class="k">Unidade</div><div class="v nowrap">—</div></div>
+      </div>
+
+      <div class="sign-row" style="margin-top:5.4px">
+        <div class="sign"><div class="k">Assinatura do cidadão</div></div>
+        <div class="sign"><div class="k">Assinatura do técnico</div></div>
+      </div>
+    </section>
+  </main>
+
+  
+
+
+<script>
+(function(){
+  var host = location.hostname || '';
+  var seg = location.pathname.split('/').filter(Boolean);
+  var base = '';
+  if (host.endsWith('github.io') && seg.length>0) base = '/' + seg[0];
+  window.PD_BASE = base;
+
+  function prefixURL(u){
+    if(!u || typeof u!=='string') return u;
+    if(!base) return u;
+    if(u.startsWith('http://')||u.startsWith('https://')||u.startsWith('mailto:')||u.startsWith('#')) return u;
+    if(u.startsWith('/')) return base + u;
+    return u;
+  }
+  function patch(){
+    document.querySelectorAll('a[href]').forEach(function(a){ a.setAttribute('href', prefixURL(a.getAttribute('href'))); });
+    document.querySelectorAll('form[action]').forEach(function(f){ f.setAttribute('action', prefixURL(f.getAttribute('action'))); });
+    document.querySelectorAll('[data-astro-modal-url]').forEach(function(b){
+      b.setAttribute('data-astro-modal-url', prefixURL(b.getAttribute('data-astro-modal-url')));
+    });
+    document.querySelectorAll('link[href]').forEach(function(l){
+      var h=l.getAttribute('href');
+      if(h && h.startsWith('/static/')) l.setAttribute('href', prefixURL(h));
+    });
+    document.querySelectorAll('audio source[src], audio[src]').forEach(function(el){
+      var s=el.getAttribute('src'); if(s && s.startsWith('/static/')) el.setAttribute('src', prefixURL(s));
+    });
+    document.querySelectorAll('img[src]').forEach(function(img){
+      var s=img.getAttribute('src'); if(s && s.startsWith('/')) img.setAttribute('src', prefixURL(s));
+    });
+  }
+
+  function isLogged(){ try{return localStorage.getItem('pd_demo_logged')==='1';}catch(e){return false;} }
+  function setLogged(v){ try{localStorage.setItem('pd_demo_logged', v?'1':'0');}catch(e){} }
+
+  document.addEventListener('submit', function(ev){
+    var f = ev.target;
+    if(!f || f.tagName!=='FORM') return;
+    var action = (f.getAttribute('action')||'');
+    action = action.replace(base,'');
+    if(action === '/login'){
+      ev.preventDefault();
+      setLogged(true);
+      location.href = prefixURL('/');
+      return;
+    }
+    if((f.getAttribute('method')||'').toLowerCase()==='post'){
+      ev.preventDefault();
+      if(window.toast) window.toast('Ação desativada na versão demonstrativa.');
+      else alert('Ação desativada na versão demonstrativa.');
+    }
+  }, true);
+
+  document.addEventListener('DOMContentLoaded', function(){
+    patch();
+    var p = (location.pathname||'').replace(base,'') || '/';
+    if((p !== '/login' && p !== '/login/') && !isLogged()){
+      location.replace(prefixURL('/login/'));
+      return;
+    }
+    document.querySelectorAll('a[href]').forEach(function(a){
+      var href=(a.getAttribute('href')||'').replace(base,'');
+      if(href==='/logout'){
+        a.addEventListener('click', function(e){ e.preventDefault(); setLogged(false); location.href=prefixURL('/login/'); });
+      }
+    });
+
+    var realFetch = window.fetch;
+    window.fetch = function(input, init){
+      var url = (typeof input === 'string') ? input : (input && input.url) ? input.url : '';
+      var u = (url||'').replace(base,'');
+      if(u.startsWith('/api/')){
+        if(u.startsWith('/api/notificacoes/atendimentos')){
+          return Promise.resolve(new Response(JSON.stringify({items:[]}), {status:200, headers:{'Content-Type':'application/json'}}));
+        }
+        if(u.startsWith('/api/visitas/settings')){
+          return Promise.resolve(new Response(JSON.stringify({theme:'light'}), {status:200, headers:{'Content-Type':'application/json'}}));
+        }
+        if(u.startsWith('/api/visitas/item/')){
+          return Promise.resolve(new Response(JSON.stringify({ok:true}), {status:200, headers:{'Content-Type':'application/json'}}));
+        }
+        if(u.startsWith('/api/atendimento/')){
+          return Promise.resolve(new Response(JSON.stringify({ok:true}), {status:200, headers:{'Content-Type':'application/json'}}));
+        }
+      }
+      return realFetch(input, init);
+    };
+  });
+})();
+</script>
+
+</body>
+</html>

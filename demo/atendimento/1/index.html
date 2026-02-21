@@ -1,0 +1,3066 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PrimeDesk</title>
+  <link href="/static/custom.css?v=55" rel="stylesheet">
+  <script>(function(){try{var t=localStorage.getItem('pd_theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>
+
+  <style>
+  #toast-container{position:fixed;right:12px;bottom:12px;display:flex;flex-direction:column;gap:8px;z-index:9999}
+  .toast{background:#222;color:#fff;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,.25);padding:12px 14px;display:flex;gap:10px;align-items:flex-start;min-width:260px;max-width:360px}
+  .toast a{color:#fff;text-decoration:underline}
+  .toast .meta{font-size:.85rem;opacity:.85;margin-top:4px}
+  .toast .close{margin-left:auto;cursor:pointer;opacity:.6}
+  .toast .close:hover{opacity:1}
+  
+  /* Modal (mini-janela) do atendimento */
+  .astro-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:10000}
+  .astro-modal.is-open{display:flex}
+  .astro-modal .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+  .astro-modal .card{position:relative;background:var(--card,#fff);color:var(--text,#0f172a);border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.25);width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 24px);overflow:auto}
+  .astro-modal .header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
+  .astro-modal .header h3{margin:0;font-size:1.05rem}
+  .astro-modal .closebtn{border:0;background:transparent;font-size:1.2rem;cursor:pointer;opacity:.7}
+  .astro-modal .closebtn:hover{opacity:1}
+  .astro-modal .body{padding:14px 16px}
+  .astro-modal .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .astro-modal .row{display:flex;flex-direction:column;gap:2px}
+  .astro-modal .row .k{font-size:.82rem;opacity:.75}
+  .astro-modal .row .v{font-weight:600}
+  .astro-modal .desc{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border)}
+  .astro-modal .actions{display:flex;gap:10px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--border);position:sticky;bottom:0;background:var(--card,#fff)}
+
+  
+  .nav a{ text-decoration:none }
+  .nav a:hover{ text-decoration:none }
+
+  /* Conteúdo carregado dentro do modal (Painel/Config) - evita "janela dentro da janela" */
+  .modal-page{padding:4px 2px}
+  .modal-page .card,
+  .modal-page section.card{box-shadow:none!important;border:0!important;background:transparent!important;padding:0!important;margin:0!important}
+  .modal-page .card-header{padding:0 0 10px 0;border-bottom:1px solid rgba(0,0,0,.08);margin-bottom:12px}
+  .modal-page h1{font-size:1.55rem;margin:0}
+  .modal-page .small{margin-top:4px}
+
+
+/* --- Topbar (fallback inline) --- */
+.top-actions{display:flex;align-items:center;gap:10px}
+.iconbtn{width:38px;height:38px;border-radius:12px;border:1px solid var(--border, rgba(0,0,0,.12));
+  background:var(--card, #fff);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.iconbtn svg{width:20px;height:20px;display:block}
+.notif-badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;
+  background:#2563eb;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg, #f5f7fb)}
+.top-drawer{position:fixed;inset:0;display:none;z-index:80}
+.top-drawer.is-open{display:block}
+.top-drawer .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.35)}
+.top-drawer .panel{position:absolute;top:64px;right:10px;width:min(320px,calc(100vw - 20px));
+  background:var(--card, #fff);border:1px solid var(--border, rgba(0,0,0,.12));border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.25);overflow:hidden}
+.drawer-header{padding:14px 16px;border-bottom:1px solid var(--border, rgba(0,0,0,.12))}
+.drawer-nav{display:flex;flex-direction:column;padding:8px}
+.drawer-nav a,
+.drawer-nav button{padding:10px 12px;border-radius:12px;color:var(--text, #0f172a);text-decoration:none;font-weight:700;text-align:left;background:transparent;border:0;cursor:pointer;display:flex;align-items:center;gap:10px}
+.drawer-nav svg{width:18px;height:18px;fill:var(--text, #0f172a);flex:0 0 auto}
+.drawer-nav a.danger svg{fill:#b91c1c}
+.drawer-nav a:hover,
+.drawer-nav button:hover{background:rgba(0,0,0,.05)}
+.drawer-nav a.danger{color:#b91c1c}
+.drawer-nav a.danger:hover{background:rgba(185,28,28,.10)}
+body.drawer-open{overflow:hidden}
+body.drawer-open header{background:var(--card,#fff);backdrop-filter:none}
+/* tema icon swap */
+#themeToggle .theme-icon{display:inline-flex}
+#themeToggle .theme-icon-sun{display:none}
+html[data-theme="dark"] #themeToggle .theme-icon-sun{display:inline-flex}
+html[data-theme="dark"] #themeToggle .theme-icon-moon{display:none}
+</style>
+
+</head>
+<script>(function(){try{var t=sessionStorage.getItem('tabId');if(!t){t=(Math.random().toString(36).slice(2))+('-')+Date.now();sessionStorage.setItem('tabId',t);}window.TAB_ID=t;}catch(e){window.TAB_ID='';}})();</script>
+<!-- Mascarar rotas na barra de endereço (mostrar sempre "/"). -->
+<script>(function(){
+  var __MASK_URL_BOOT__ = false;
+  if(!__MASK_URL_BOOT__) return;
+
+  function _navType(){
+    try{
+      var nav = (performance && performance.getEntriesByType) ? performance.getEntriesByType('navigation') : null;
+      if(nav && nav.length){ return nav[0].type || ''; }
+      // fallback antigo
+      if(performance && performance.navigation){
+        if(performance.navigation.type === 1) return 'reload';
+        if(performance.navigation.type === 2) return 'back_forward';
+      }
+    }catch(e){}
+    return '';
+  }
+  function _tryRestoreOnReload(){
+    try{
+      // Se a URL já está "limpa" (/) e o usuário deu F5/atualizou, restaura a rota real salva
+      if(String(location.pathname||'/') !== '/') return;
+      var t = _navType();
+      if(!(t === 'reload' || t === 'back_forward')) return;
+      var last = '';
+      // Preferir a rota real mais recente (SPA) quando existir
+      try{ last = sessionStorage.getItem('lastRoute') || ''; }catch(e){}
+      if(!last){
+        try{ last = sessionStorage.getItem('pd_last_url') || ''; }catch(e){}
+      }
+      if(!last || last === '/' ) return;
+      // Evita loop
+      try{
+        var key = 'pd_restore_lock';
+        var keyTs = 'pd_restore_lock_ts';
+        var lock = sessionStorage.getItem(key);
+        var lockTs = parseInt(sessionStorage.getItem(keyTs) || '0', 10) || 0;
+        // Só bloqueia loop imediato (ex.: redirecionamento em sequência)
+        if(lock === last && (Date.now() - lockTs) < 2000) return;
+        sessionStorage.setItem(key, last);
+        sessionStorage.setItem(keyTs, String(Date.now()));
+      }catch(e){}
+      location.replace(last);
+    }catch(e){}
+  }
+  _tryRestoreOnReload();
+
+  function _canClean(){
+    try{
+      var p = String(location.pathname || "/" );
+      if (!p) p = "/";
+      if (p.startsWith("/static") || p.startsWith("/favicon")) return false;
+      if (p === "/login" || p === "/logout" || p === "/trocar-senha") return false;
+      return true;
+    }catch(e){ return false; }
+  }
+
+  // Garante que links relativos continuem funcionando mesmo com a URL mascarada na barra.
+  // Faz isso definindo um <base href="..."> apontando para a rota real (com / no final).
+  function _setBaseFrom(realFull){
+    try{
+      var p = String(realFull || "/" );
+      // remove query/hash
+      p = p.split("#")[0].split("?")[0] || "/";
+      // força "/" no final (resolve melhor links relativos)
+      if(!p.endsWith("/")) p = p + "/";
+      var href = location.origin + p;
+
+      var head = document.head || document.getElementsByTagName("head")[0];
+      if(!head) return;
+
+      var base = document.getElementById("pd-base");
+      if(!base){
+        base = document.createElement("base");
+        base.id = "pd-base";
+        // coloca no início do <head> para influenciar resolução de URLs
+        head.insertBefore(base, head.firstChild);
+      }
+      base.setAttribute("href", href);
+    }catch(e){}
+  }
+
+
+  // Permite voltar para a página inicial mesmo com a URL mascarada como "/".
+  // Sem isso, botões/links que navegam para "/" podem "não fazer nada" porque a barra já está "/".
+  function _forceHomeAndReload(){
+    try{
+      sessionStorage.setItem("lastRoute", "/");
+      sessionStorage.setItem("pd_last_url", "/");
+      sessionStorage.removeItem("pd_restore_lock");
+      sessionStorage.removeItem("pd_restore_lock_ts");
+    }catch(e){}
+    try{
+      // Força recarregar de verdade a home no servidor
+      location.assign("/");
+      // Alguns browsers não recarregam se já estiver em "/", então garantimos:
+      setTimeout(function(){ try{ location.reload(); }catch(e){} }, 50);
+    }catch(e){}
+  }
+
+  // Captura cliques no "ícone/home" do topo e em qualquer <a href="/"> para garantir navegação para home.
+  try{
+    document.addEventListener("click", function(ev){
+      var el = ev.target;
+      if(!el) return;
+      var a = el.closest ? el.closest('a[href="/"]') : null;
+      var brand = el.closest ? el.closest(".brand, .brand-badge") : null;
+      if(a || brand){
+        // se o usuário está tentando ir para a home, não restaure rota antiga no reload
+        _forceHomeAndReload();
+        ev.preventDefault();
+        ev.stopPropagation();
+      }
+    }, true);
+  }catch(e){}
+
+  function _clean(){
+    if(!_canClean()) return;
+    try{
+      var full = (location.pathname||"" ) + (location.search||"" ) + (location.hash||"" );
+
+      // Se já está mascarado como "/", não sobrescreva a rota real: reaproveite a última rota conhecida.
+      if((full === "/" || full === "" ) && String(location.pathname||"/" ) === "/" ){
+        try{
+          var lr = sessionStorage.getItem("lastRoute") || "";
+          if(!lr) lr = sessionStorage.getItem("pd_last_url") || "";
+          if(lr && lr !== "/" ) full = lr;
+        }catch(e){}
+      }
+
+      // Persistir rota real (para F5/reload) + manter base correto para links relativos
+      try{ sessionStorage.setItem("lastRoute", full || "/" ); }catch(e){}
+      try{ sessionStorage.setItem("pd_last_url", full || "/" ); }catch(e){}
+      try{ _setBaseFrom(full || "/" ); }catch(e){}
+
+      // Mascarar na barra (mostrar sempre "/" )
+      try{ history.replaceState({u: (full || "/" )}, "", "/" ); }catch(e){}
+    }catch(e){}
+  }
+  try{ _clean(); }catch(e){}
+})();</script>
+<body data-me-id="" data-ticket-enabled="1">
+  
+  
+  
+
+<header>
+    <div class="container topbar-container" style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="brand">
+        <div class="brand-badge">PD</div>
+        <div>
+          
+          
+          
+            
+          
+          <div class="brand-sub">Atendimentos</div>
+          <div class="brand-title">namespace(nome=&#39;Sua Empresa (DEMO)&#39;, endereco=&#39;Endereço aqui&#39;, telefone=&#39;(00) 0000-0000&#39;)</div>
+        </div>
+      </div>
+      
+      
+        
+      
+      <div class="top-actions" aria-label="Ações">
+        
+        <a class="iconbtn" href="/" title="Página inicial" aria-label="Página inicial">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 3 11v10h6v-6h6v6h6V11l-9-7.8Zm7 15.8h-2v-6H7v6H5v-7.1l7-6.1 7 6.1V19Z"/></svg>
+        </a>
+
+        <a class="iconbtn " href="/atendimentos/registrar" title="Registrar" aria-label="Registrar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20h14v2H5v-2Zm2-4h10v2H7v-2Zm9.6-12.6 2 2L10 14H8v-2l8.6-8.6ZM18 2c-.3 0-.5.1-.7.3l-1.4 1.4 2 2L19.3 4c.4-.4.4-1 0-1.4l-.9-.9C18.5 2.1 18.3 2 18 2Z"/></svg>
+        </a>
+
+        <a class="iconbtn " href="/lista" title="Lista" aria-label="Lista">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 2H8a2 2 0 0 0-2 2v2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-1V4a2 2 0 0 0-2-2Zm0 4H8V4h8v2Zm3 14H5V8h14v12Zm-9-9h8v2H10v-2Zm0 4h8v2H10v-2Z"/></svg>
+        </a>
+
+        
+
+
+	        
+	          <button type="button" class="iconbtn" id="topMenuBtn" title="OPÇÕES" aria-label="OPÇÕES">
+	            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v2H3V6Zm0 5h18v2H3v-2Zm0 5h18v2H3v-2Z"/></svg>
+	          </button>
+	        
+
+      </div>
+
+      
+      
+
+
+    </div>
+
+	    
+	    <!-- Submenu (3 tracinhos): Temas, Relatórios, Painel e Sair -->
+	    <div id="topMenuDrawer" class="top-drawer" aria-hidden="true">
+	      <div class="backdrop" data-close="1"></div>
+	      <div class="panel" role="dialog" aria-modal="true" aria-label="Menu">
+	        <div class="drawer-header">
+	          
+	            <div class="drawer-sub" style="margin-top:0;font-weight:700;opacity:.95">Olá, demo...</div>
+	          
+	        </div>
+	        <nav class="drawer-nav">
+	          <button type="button" id="themeToggle" title="MODO ESCURO" aria-label="MODO ESCURO">
+	            <span class="theme-icon theme-icon-moon" aria-hidden="true">
+	              <svg viewBox="0 0 24 24"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3a7 7 0 1 0 11.5 11.5Z"/></svg>
+	            </span>
+	            <span class="theme-icon theme-icon-sun" aria-hidden="true">
+	              <svg viewBox="0 0 24 24"><path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12Zm0-16h1v3h-1V2Zm0 19h1v3h-1v-3ZM2 11h3v1H2v-1Zm19 0h3v1h-3v-1ZM4.2 5l2.1 2.1-.7.7L3.5 5.7 4.2 5Zm14.2 14.2 2.1 2.1-.7.7-2.1-2.1.7-.7ZM18.3 5.7l-2.1 2.1-.7-.7L17.6 5l.7.7ZM6.4 17.6l-2.1 2.1-.7-.7 2.1-2.1.7.7Z"/></svg>
+	            </span>
+	            <span id="themeLabel">MODO ESCURO</span>
+	          </button>
+	          <a href="/relatorios">
+	            <svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px"><path d="M4 19h16v2H4v-2Zm2-3h3V8H6v8Zm5 0h3V4h-3v12Zm5 0h3v-6h-3v6Z"/></svg>
+	            <span>RELATÓRIOS</span>
+	          </a>
+	          
+	            <a href="/painel">
+	              <svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px"><path d="M3 13h8V3H3v10Zm0 8h8v-6H3v6Zm10 0h8V11h-8v10Zm0-18v6h8V3h-8Z"/></svg>
+	              <span>PAINEL</span>
+	            </a>
+	          
+	          <a class="danger" href="/logout">
+	            <svg viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px"><path d="M10 17v-2h4v-6h-4V7l-5 5 5 5Zm9-14H11v2h8v14h-8v2h10V3h-2Z"/></svg>
+	            <span>SAIR</span>
+	          </a>
+	        </nav>
+	      </div>
+	    </div>
+	    
+  </header>
+
+
+
+<main id="app-main" class="container">
+    
+<section class="card">
+  <div class="card-header">
+    <h1 style="margin:0">
+      
+        NÃO ENCONTRADO
+      
+    </h1>
+    <div class="small">Protocolo: <strong>PD-1001</strong> &mdash; 21/02/2026 16:15</div>
+  </div>
+  <div class="card-body">
+    <form method="post" action="/atendimento/1/atualizar" class="row">
+  <div class="col">
+    <label class="label">Nome</label>
+    <input name="nome_cidadao" value="" class="input">
+  </div>
+  <div class="col">
+    <label class="label">CPF</label>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input id="cpfField" name="cpf" value="12345678901" class="input" placeholder="000.000.000-00" style="flex:1">
+      <button type="button" class="btn" id="copyCpfBtn" title="Copiar CPF" style="padding:8px 10px;border-radius:10px">
+        <!-- ícone copiar -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="small" id="cpfCopyMsg" style="display:none;margin-top:6px">CPF copiado.</div>
+  </div>
+  <div class="col">
+    <label class="label">Tipo</label>
+    <select name="tipo_id" class="input">
+      
+        <option value="1" >Suporte</option>
+      
+        <option value="2" >Visita</option>
+      
+        <option value="3" >Manutenção</option>
+      
+    </select>
+  </div>
+  <div class="col">
+    <label class="label">Status</label>
+    <select name="status" class="input">
+      
+        <option value="aberto" selected>aberto</option>
+      
+        <option value="finalizado" >finalizado</option>
+      
+    </select>
+  </div>
+  <div class="col">
+    <label class="label">Responsável</label>
+    <select name="responsavel_id" class="input">
+      <option value="">—</option>
+      
+    </select>
+  </div>
+  <div class="col">
+    <label class="label">Unidade</label>
+    <select name="solicitante" class="input">
+      <option value="">—</option>
+      
+        <option value="Recepção" >Recepção</option>
+      
+        <option value="TI" >TI</option>
+      
+        <option value="Financeiro" >Financeiro</option>
+      
+    </select>
+  </div>
+  <div class="col" style="flex-basis:100%">
+    <button class="btn btn-primary">Salvar alterações</button>
+    <a href="/atendimentos" class="btn">Voltar</a>
+  </div>
+</form>
+
+  </div>
+</section>
+
+<script>
+(function(){
+  var atendimentoId = "1";
+  if(!atendimentoId){ return; }
+  var form = document.querySelector('form[action="/atendimento/1/atualizar"]');
+  if(!form){ return; }
+  form.addEventListener('submit', function(){
+    try{
+      var STORAGE_TOASTS = 'astro_toasts';
+      var raw = localStorage.getItem(STORAGE_TOASTS) || '[]';
+      var list;
+      try { list = JSON.parse(raw); } catch(e){ list = []; }
+      list = (list || []).filter(function(x){
+        return String(x.id) !== String(atendimentoId);
+      });
+      try {
+        localStorage.setItem(STORAGE_TOASTS, JSON.stringify(list));
+      } catch(e){}
+      var tc = document.getElementById('toast-container');
+      if(tc){
+        var el = tc.querySelector('.toast[data-id="'+ atendimentoId +'"]');
+        if(el){ el.remove(); }
+      }
+    }catch(e){}
+  });
+
+  // Copiar CPF
+  (function(){
+    var btn = document.getElementById('copyCpfBtn');
+    var field = document.getElementById('cpfField');
+    var msg = document.getElementById('cpfCopyMsg');
+    if(!btn || !field) return;
+    btn.addEventListener('click', async function(){
+      try{
+        var v = (field.value || '').trim();
+        if(!v) return;
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          await navigator.clipboard.writeText(v);
+        }else{
+          field.focus();
+          field.select();
+          document.execCommand('copy');
+          window.getSelection && window.getSelection().removeAllRanges && window.getSelection().removeAllRanges();
+        }
+        if(msg){
+          msg.style.display = 'block';
+          setTimeout(function(){ msg.style.display='none'; }, 1400);
+        }
+      }catch(e){}
+    });
+  })();
+})();
+</script>
+
+
+  </main>
+
+  
+  <footer class="footer">
+    namespace(nome=&#39;Sua Empresa (DEMO)&#39;, endereco=&#39;Endereço aqui&#39;, telefone=&#39;(00) 0000-0000&#39;) — 2026
+  </footer>
+
+
+
+  <!-- Modal Atendimento (abre ao clicar na notificação) -->
+  <div id="astroAtendimentoModal" class="astro-modal" aria-hidden="true">
+    <div class="backdrop" data-close="1"></div>
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="astroModalTitle">
+      <div class="header">
+        <h3 id="astroModalTitle">Atendimento</h3>
+        <button type="button" class="closebtn" data-close="1" aria-label="Fechar">✕</button>
+      </div>
+      <div class="body" id="astroModalBody">Carregando…</div>
+      <div class="actions">
+        
+          <a class="btn btn-secondary" id="astroModalTicket" href="#" target="_blank" rel="noopener" title="Imprimir ticket">Imprimir ticket</a>
+        
+        <button type="button" class="btn btn-primary" id="astroModalFinalizar">Finalizar atendimento</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal Visita (mini janela no mesmo estilo do atendimento) -->
+  <div id="astroVisitaModal" class="astro-modal" aria-hidden="true">
+    <div class="backdrop" data-close="1"></div>
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="astroVisitaTitle">
+      <div class="header">
+        <h3 id="astroVisitaTitle">Visita</h3>
+        <button type="button" class="closebtn" data-close="1" aria-label="Fechar">✕</button>
+      </div>
+      <div class="body" id="astroVisitaBody">Carregando…</div>
+      <div class="actions">
+        <button type="button" class="btn btn-secondary" id="astroVisitaEditar">Editar</button>
+        <a class="btn btn-secondary" id="astroVisitaPrint" href="#" target="_blank" rel="noopener" title="Imprimir ficha">Imprimir</a>
+        <button type="button" class="btn btn-primary" id="astroVisitaFinalizar">Finalizar visita</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmação de Pendências (usado ao finalizar VISITA) -->
+  <div id="astroPendenciasModal" class="astro-modal" aria-hidden="true">
+    <div class="backdrop" data-close="1"></div>
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="astroPendenciasTitle" style="max-width:520px">
+      <div class="header">
+        <h3 id="astroPendenciasTitle">Pendências</h3>
+        <button type="button" class="closebtn" data-close="1" aria-label="Fechar">✕</button>
+      </div>
+      <div class="body">
+        <div style="font-size:1rem;line-height:1.4;margin-bottom:6px">Há pendências nesta visita?</div>
+        <div style="opacity:.85;font-size:.9rem">Escolha uma opção para registrar na visita antes de finalizar.</div>
+      </div>
+      <div class="actions" style="justify-content:flex-end">
+        <button type="button" class="btn btn-secondary" id="astroPendenciasNao">Não</button>
+        <button type="button" class="btn btn-primary" id="astroPendenciasSim">Sim</button>
+      </div>
+    </div>
+  </div>
+
+
+  
+
+  <!-- Modal Genérico (Painel / Configurações) -->
+  <div id="astroGenericModal" class="astro-modal" aria-hidden="true">
+    <div class="backdrop" data-close="1"></div>
+    <div class="card" role="dialog" aria-modal="true" aria-labelledby="astroGenericTitle">
+      <div class="header">
+        <h3 id="astroGenericTitle">Painel</h3>
+        <button class="closebtn" type="button" aria-label="Fechar" data-close="1">×</button>
+      </div>
+      <div class="body">
+        <div id="astroGenericBody"></div>
+</div>
+    </div>
+  </div>
+
+<script>
+    // Máscara simples de CPF
+    document.addEventListener('input', function(e){
+      if (e.target && e.target.name === 'cpf') {
+        let v = e.target.value.replace(/\D/g,'');
+        if (v.length > 11) v = v.slice(0,11);
+        const p = [];
+        if (v.length > 0) p.push(v.slice(0,3));
+        if (v.length > 3) p.push(v.slice(3,6));
+        if (v.length > 6) p.push(v.slice(6,9));
+        let s = p.join('.');
+        if (v.length > 9) s += '-' + v.slice(9,11);
+        e.target.value = s;
+      }
+    });
+  </script>
+
+  <script>
+    // Destacar campos obrigatórios (todas as páginas/módulos)
+    // - adiciona asterisco vermelho no label
+    // - realça o input/select/textarea
+    (function(){
+      function markRequired(){
+        try{
+          // Não aplicar destaque de obrigatórios no Painel (admin), para evitar campos vermelhos em formulários independentes
+          try{ if(window.location && window.location.pathname && window.location.pathname.startsWith('/admin')) return; }catch(e){}
+
+          var fields = document.querySelectorAll('input[required], select[required], textarea[required]');
+          if(!fields || !fields.length) return;
+          var autoId = 0;
+          fields.forEach(function(el){
+            try{ el.classList.add('is-required'); }catch(e){}
+            // Garante um id para tentar parear com label[for]
+            if(!el.id){
+              autoId += 1;
+              el.id = 'req_' + autoId;
+            }
+            // Preferência 1: label[for]
+            var lbl = document.querySelector('label[for="' + el.id + '"]');
+            // Preferência 2: label imediatamente anterior com classe .label
+            if(!lbl){
+              var prev = el.previousElementSibling;
+              if(prev && prev.classList && prev.classList.contains('label')) lbl = prev;
+            }
+            // Preferência 3: dentro da mesma coluna, primeiro .label
+            if(!lbl){
+              var col = el.closest('.col');
+              if(col){
+                var cLbl = col.querySelector('.label');
+                if(cLbl) lbl = cLbl;
+              }
+            }
+            if(lbl && lbl.classList){
+              lbl.classList.add('required');
+            }
+          });
+        }catch(e){}
+      }
+      if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', markRequired);
+      }else{
+        markRequired();
+      }
+    })();
+  </script>
+
+  
+  
+  
+
+
+  <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+  <audio id="ding" src="/static/notify.wav" preload="auto"></audio>
+  <button id="enable-sound" class="btn small" style="position:fixed;bottom:12px;right:12px;display:none;">🔔 Ativar som</button>
+  <script>
+  (function(){
+    var audio = document.getElementById('ding');
+    var btn = document.getElementById('enable-sound');
+    var tc = document.getElementById('toast-container');
+
+    // Toast simples (mensagens não-bloqueantes)
+    function toast(message){
+      try{
+        if(!tc) return;
+        var el = document.createElement('div');
+        el.className = 'toast';
+        el.innerHTML = '<div style="font-weight:800">' + __astroEscapeHtml(message||'') + '</div>' +
+                       '<div class="close" aria-label="Fechar">✕</div>';
+        tc.appendChild(el);
+        var closeBtn = el.querySelector('.close');
+        if(closeBtn){
+          closeBtn.addEventListener('click', function(){ try{ el.remove(); }catch(e){} });
+        }
+        setTimeout(function(){ try{ el.remove(); }catch(e){} }, 3200);
+      }catch(e){}
+    }
+    window.toast = toast;
+
+    // Flash toast (para mensagens vindas de mini-janelas/modais do Painel)
+    // Uso (dentro do iframe embed):
+    //   window.parent.sessionStorage.setItem('pd_flash_msg', '...');
+    //   window.parent.__astroGenericCloseAndRefresh();
+    (function(){
+      try{
+        var msg = null;
+        try{ msg = sessionStorage.getItem('pd_flash_msg'); }catch(e){ msg = null; }
+        if(msg){
+          try{ sessionStorage.removeItem('pd_flash_msg'); }catch(e){}
+          setTimeout(function(){
+            try{ toast(msg); }catch(e){}
+          }, 80);
+        }
+      }catch(e){}
+    })();
+
+
+    // -------------------------------------------------------------------------
+    // Modal do atendimento (abre ao clicar na notificação)
+    // -------------------------------------------------------------------------
+    var __ASTRO_MODAL__ = document.getElementById('astroAtendimentoModal');
+    var __ASTRO_MODAL_BODY__ = document.getElementById('astroModalBody');
+    var __ASTRO_MODAL_FINALIZAR__ = document.getElementById('astroModalFinalizar');
+    var __ASTRO_MODAL_TICKET__ = document.getElementById('astroModalTicket');
+    var __ASTRO_MODAL_STATE__ = { atendimentoId: null, toastId: null };
+
+    function __astroEscapeHtml(s){
+      try{
+        return String(s==null?'':s)
+          .replace(/&/g,'&amp;')
+          .replace(/</g,'&lt;')
+          .replace(/>/g,'&gt;')
+          .replace(/"/g,'&quot;')
+          .replace(/'/g,'&#39;');
+      }catch(e){ return ''; }
+    }
+    function __astroCpfFmt(v){
+      try{
+        var d = String(v||'').replace(/\D/g,'');
+        if(d.length>11) d=d.slice(-11);
+        if(d.length<11) d = d.padStart(11,'0');
+        return d.slice(0,3)+'.'+d.slice(3,6)+'.'+d.slice(6,9)+'-'+d.slice(9,11);
+      }catch(e){ return String(v||''); }
+    }
+    function __astroModalSetOpen(open){
+      if(!__ASTRO_MODAL__) return;
+      if(open){
+        __ASTRO_MODAL__.classList.add('is-open');
+        __ASTRO_MODAL__.setAttribute('aria-hidden','false');
+      }else{
+        __ASTRO_MODAL__.classList.remove('is-open');
+        __ASTRO_MODAL__.setAttribute('aria-hidden','true');
+        __ASTRO_MODAL_STATE__.atendimentoId = null;
+        __ASTRO_MODAL_STATE__.toastId = null;
+        try{ __ASTRO_MODAL_STATE__.isVisita = false; }catch(e){}
+        try{
+          var titleEl = document.getElementById('astroModalTitle');
+          if(titleEl) titleEl.textContent = 'Atendimento';
+          if(__ASTRO_MODAL_FINALIZAR__) __ASTRO_MODAL_FINALIZAR__.textContent = 'Finalizar atendimento';
+        }catch(e){}
+      }
+    }
+    function __astroBindModalClose(){
+      if(!__ASTRO_MODAL__) return;
+      try{
+        __ASTRO_MODAL__.querySelectorAll('[data-close="1"]').forEach(function(btn){
+          btn.addEventListener('click', function(){ __astroModalSetOpen(false); });
+        });
+        document.addEventListener('keydown', function(ev){
+          if(ev.key === 'Escape' && __ASTRO_MODAL__.classList.contains('is-open')) __astroModalSetOpen(false);
+        });
+      }catch(e){}
+    }
+    __astroBindModalClose();
+
+    function __astroRenderAtendimentoModal(data){
+      if(!__ASTRO_MODAL_BODY__) return;
+      try{
+        // Se o tipo do atendimento for "Visita Domiciliar", o modal deve se comportar como VISITA
+        // (apenas muda título e rótulo do botão de finalizar).
+        try{
+          var tName = String((data && (data.tipo || data.tipo_nome)) || '').trim();
+          var norm = function(s){
+            try{
+              return String(s||'')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g,'')
+                .replace(/\s+/g,' ')
+                .trim();
+            }catch(e){ return String(s||'').toLowerCase().trim(); }
+          };
+          var isVisita = norm(tName) === 'visita domiciliar';
+          try{ __ASTRO_MODAL_STATE__.isVisita = !!isVisita; }catch(e){}
+          var titleEl = document.getElementById('astroModalTitle');
+          if(titleEl) titleEl.textContent = isVisita ? 'Visita' : 'Atendimento';
+          if(__ASTRO_MODAL_FINALIZAR__){
+            __ASTRO_MODAL_FINALIZAR__.textContent = isVisita ? 'Finalizar visita' : 'Finalizar atendimento';
+          }
+        }catch(_e){}
+
+        var nome = data.nome || '';
+        var cpf = data.cpf_formatado || (data.cpf ? __astroCpfFmt(data.cpf) : '');
+        var protocolo = data.protocolo || ('#' + data.id);
+        var criado = data.criado_em_br || data.criado_em || '';
+        var status = data.status || '';
+
+        var tipos = Array.isArray(data.tipos) ? data.tipos : [];
+        var tipoId = (data.tipo_id != null ? String(data.tipo_id) : '');
+
+        var setores = Array.isArray(data.setores) ? data.setores : [];
+        var setorAtual = (data.setor || '');
+
+        // Garante que o setor atual apareça no select mesmo se não estiver na lista
+        if(setorAtual && setores.indexOf(setorAtual) === -1){
+          setores = [setorAtual].concat(setores);
+        }
+
+        function opt(v, txt, selected){
+          return '<option value="'+__astroEscapeHtml(v)+'"'+(selected?' selected':'')+'>'+__astroEscapeHtml(txt)+'</option>';
+        }
+
+        var optsTipo = '';
+        if(!tipos.length){
+          optsTipo = opt(tipoId || '', (data.tipo || '—'), true);
+        }else{
+          optsTipo = tipos.map(function(t){
+            var id = (t && t.id != null ? String(t.id) : '');
+            var nm = (t && t.nome != null ? String(t.nome) : '');
+            return opt(id, nm, (id && tipoId && id === tipoId));
+          }).join('');
+        }
+
+        var optsSetor = '';
+        if(!setores.length){
+          optsSetor = opt(setorAtual || '', (setorAtual || '—'), true);
+        }else{
+          optsSetor = setores.map(function(s){
+            var vv = String(s||'');
+            return opt(vv, vv, (vv && setorAtual && vv === setorAtual));
+          }).join('');
+        }
+
+        // Modal editável (sem campo de descrição)
+        var html = ''
+          + '<form id="astroAtendimentoForm" autocomplete="off">'
+          +   '<div class="grid">'
+          +     '<div class="row"><div class="k">Protocolo</div><div class="v">'+__astroEscapeHtml(protocolo)+'</div></div>'
+          +     '<div class="row"><div class="k">Data</div><div class="v">'+__astroEscapeHtml(criado)+'</div></div>'
+
+          +     '<div class="row">'
+          +       '<div class="k">Nome</div>'
+          +       '<input class="input" type="text" name="nome_cidadao" value="'+__astroEscapeHtml(nome||'')+'" placeholder="Nome" />'
+          +     '</div>'
+
+          +     '<div class="row">'
+          +       '<div class="k">CPF</div>'
+          +       '<div class="cpf-wrap" style="display:flex;gap:8px;align-items:center">'
+          +         '<input class="input" id="astroCpfInput" type="text" name="cpf" value="'+__astroEscapeHtml(cpf||'')+'" placeholder="000.000.000-00" />'
+          +         '<button type="button" class="btn" id="astroCopyCpfBtn" data-copy="'+__astroEscapeHtml(cpf||'')+'" title="Copiar CPF" aria-label="Copiar CPF" style="padding:8px 10px;border-radius:10px">'
+          +           '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+          +             '<rect x="9" y="9" width="13" height="13" rx="2"></rect>'
+          +             '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>'
+          +           '</svg>'
+          +         '</button>'
+          +       '</div>'
+          +     '</div>'
+
+          +     '<div class="row">'
+          +       '<div class="k">Tipo</div>'
+          +       '<select class="select" name="tipo_id">'+optsTipo+'</select>'
+          +     '</div>'
+
+          +     '<div class="row">'
+          +       '<div class="k">Unidade</div>'
+          +       '<select class="select" name="solicitante">'+optsSetor+'</select>'
+          +     '</div>'
+          +   '</div>'
+          +   '<div style="margin-top:10px;opacity:.8;font-size:.9rem">Status: <strong>'+__astroEscapeHtml(status)+'</strong></div>'
+          + '</form>';
+
+        __ASTRO_MODAL_BODY__.innerHTML = html;
+
+        // Copiar CPF (mantém o botão sincronizado com o input)
+        try{
+          var _cpfIn = document.getElementById('astroCpfInput');
+          var _cpfBtn = document.getElementById('astroCopyCpfBtn');
+          if(_cpfIn && _cpfBtn){
+            _cpfBtn.setAttribute('data-copy', _cpfIn.value || '');
+            _cpfIn.addEventListener('input', function(){
+              try{ _cpfBtn.setAttribute('data-copy', _cpfIn.value || ''); }catch(e){}
+            });
+          }
+        }catch(e){}
+      }catch(e){
+        __ASTRO_MODAL_BODY__.innerHTML = 'Não foi possível carregar os dados do atendimento.';
+      }
+    }
+
+    function __astroLoadAtendimento(id){
+      if(!__ASTRO_MODAL_BODY__) return;
+      __ASTRO_MODAL_BODY__.innerHTML = 'Carregando…';
+      fetch('/api/atendimento/' + encodeURIComponent(String(id)), { headers: { 'Accept': 'application/json' } })
+        .then(function(r){ return r.json(); })
+        .then(function(data){ __astroRenderAtendimentoModal(data || {}); })
+        .catch(function(){ __ASTRO_MODAL_BODY__.innerHTML = 'Não foi possível carregar os dados do atendimento.'; });
+    }
+
+    function __astroRemoveToastById(toastId){
+      try{
+        if(tc){
+          var el = tc.querySelector('[data-id="'+toastId+'"]');
+          if(el) el.remove();
+        }
+      }catch(e){}
+      try{ removeToast(toastId); }catch(e){}
+    }
+    function __astroRemoveToastsByAtendimentoId(atId){
+      try{
+        var list = loadToasts();
+        var toRemove = [];
+        list.forEach(function(x){
+          if(String(x.atendimento_id) === String(atId)) toRemove.push(x.id);
+        });
+        toRemove.forEach(function(id){ __astroRemoveToastById(id); });
+      }catch(e){}
+    }
+
+    function __astroOpenAtendimentoModal(atId, toastId){
+      try{
+        if(!atId) return;
+        __ASTRO_MODAL_STATE__.atendimentoId = atId;
+        __ASTRO_MODAL_STATE__.toastId = toastId || null;
+
+        // Atualiza o link do ticket dentro do modal (quando habilitado)
+        try{
+          if(__ASTRO_MODAL_TICKET__){
+            __ASTRO_MODAL_TICKET__.href = '/atendimento/' + encodeURIComponent(String(atId)) + '/ticket';
+          }
+        }catch(e){}
+
+        __astroModalSetOpen(true);
+        __astroLoadAtendimento(atId);
+      }catch(e){}
+    }
+
+    // Exposição para outras páginas (ex.: Lista de atendimentos)
+    try{ window.__ASTRO_OPEN_ATENDIMENTO_MODAL__ = __astroOpenAtendimentoModal; }catch(e){}
+
+    if(__ASTRO_MODAL_FINALIZAR__){
+      __ASTRO_MODAL_FINALIZAR__.addEventListener('click', function(){
+        try{
+          var atId = __ASTRO_MODAL_STATE__.atendimentoId;
+          if(!atId) return;
+
+          // Coleta as edições (se houver)
+          var payload = {};
+          try{
+            var form = document.getElementById('astroAtendimentoForm');
+            if(form){
+              var fd = new FormData(form);
+              fd.forEach(function(v,k){
+                if(v != null){
+                  var vv = String(v);
+                  payload[k] = vv;
+                }
+              });
+            }
+          }catch(e){}
+
+          __ASTRO_MODAL_FINALIZAR__.disabled = true;
+          __ASTRO_MODAL_FINALIZAR__.textContent = 'Finalizando...';
+          fetch('/api/atendimento/' + encodeURIComponent(String(atId)) + '/finalizar', {
+              method: 'POST',
+              headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload || {})
+            })
+            .then(function(r){ return r.json(); })
+            .then(function(resp){
+              // Remove a notificação SOMENTE após finalizar (regra solicitada)
+              __astroRemoveToastsByAtendimentoId(atId);
+
+              // Atualiza o sino de notificações (remove o atendimento da lista quando status muda)
+              try{ if(window.__PD_NOTIF__ && typeof window.__PD_NOTIF__.refresh==='function'){ window.__PD_NOTIF__.refresh(true); } }catch(e){}
+
+
+              // Atualiza a linha na lista (sem precisar recarregar)
+              try{
+                var row = document.querySelector('tr.js-open-atendimento[data-atendimento-id="'+String(atId)+'"]');
+                if(row){
+                  var statusTd = row.querySelector('td[data-col="status"]');
+                  if(!statusTd){
+                    var tds = row.querySelectorAll('td');
+                    if(tds && tds.length >= 1){
+                      // fallback: se a última coluna tiver botões (ações), usa a penúltima
+                      var last = tds[tds.length - 1];
+                      if(last && last.querySelector && last.querySelector('form,button,a')){
+                        statusTd = (tds.length >= 2) ? tds[tds.length - 2] : last;
+                      }else{
+                        statusTd = last;
+                      }
+                    }
+                  }
+                  if(statusTd){
+                    statusTd.innerHTML = '<span class="badge badge-green">Finalizado</span>';
+                  }
+                }
+              }catch(e){}
+
+              __astroModalSetOpen(false);
+              // Se estiver na lista, atualiza para refletir status finalizado
+              try{
+                if(window.location && String(window.location.pathname||'').endsWith('/atendimentos')){
+                  // Recarrega a lista em segundo plano para refletir filtros/paginação
+                  setTimeout(function(){
+                    try{
+                      if(window.__ASTRO_REFRESH_CURRENT__){ window.__ASTRO_REFRESH_CURRENT__(); }
+                    }catch(e){}
+                  }, 200);
+                }
+              }catch(e){}
+            })
+            .catch(function(){ /* ignora */ })
+            .finally(function(){
+              __ASTRO_MODAL_FINALIZAR__.disabled = false;
+              try{
+                __ASTRO_MODAL_FINALIZAR__.textContent = (__ASTRO_MODAL_STATE__ && __ASTRO_MODAL_STATE__.isVisita) ? 'Finalizar visita' : 'Finalizar atendimento';
+              }catch(e){
+                __ASTRO_MODAL_FINALIZAR__.textContent = 'Finalizar atendimento';
+              }
+            });
+        }catch(e){}
+      });
+    }
+    var meId = (document.body && document.body.dataset ? document.body.dataset.meId : '');
+
+    function tryPlay(times){
+      var n = (typeof times === 'number' && times > 0) ? Math.floor(times) : 1;
+      var delay = 350; // ms entre toques
+      if(!audio) return;
+      function one(){
+        try{ audio.currentTime = 0; }catch(e){}
+        audio.play().catch(function(){ if(btn) btn.style.display='inline-flex'; });
+      }
+      one();
+      for(var i=1;i<n;i++){ setTimeout(one, i*delay); }
+    }
+
+    function pref(name, def){ try{ var v = localStorage.getItem(name); return (v===null?def:(v==='1')); }catch(e){ return def; } }
+    function setPref(name, val){ try{ localStorage.setItem(name, val?'1':'0'); }catch(e){} }
+        var PREF_NOTIFY = 'astro_notify_enabled';
+    var PREF_SOUND  = 'astro_sound_enabled';
+    // Notificação do navegador (Chrome/Edge/Firefox): aparece mesmo em outra guia
+    var PREF_BROWSER_NOTIFY = 'astro_browser_notify_enabled';
+    var PREF_BROWSER_NOTIFY_ASKED = 'astro_browser_notify_asked';
+
+    // ===== Badge no título da aba =====
+    var __ASTRO_TITLE_LOCK__ = false;
+    function __astroStripBadgeTitle(t){
+      try{ return String(t||'').replace(/^\(\d+\)\s*/,''); }catch(e){ return t; }
+    }
+    function __astroGetBaseTitle(){
+      try{ return sessionStorage.getItem('astro_base_title') || ''; }catch(e){ return ''; }
+    }
+    function __astroSetBaseTitle(t){
+      try{
+        var s = __astroStripBadgeTitle(t||'');
+        if(s){ sessionStorage.setItem('astro_base_title', s); }
+      }catch(e){}
+    }
+    function __astroPendingCount(){
+      try{ return (loadToasts() || []).length; }catch(e){ return 0; }
+    }
+    function __astroUpdateTitleBadge(){
+      try{
+        if(__ASTRO_TITLE_LOCK__) return;
+        var cur = document.title || 'PrimeDesk';
+        // Se alguma navegação parcial mudou o title, atualiza o baseTitle
+        var curNoBadge = __astroStripBadgeTitle(cur);
+        var base = __astroGetBaseTitle();
+        if(!base || (curNoBadge && curNoBadge !== base)){
+          base = curNoBadge || base || 'PrimeDesk';
+          __astroSetBaseTitle(base);
+        }
+        var n = __astroPendingCount();
+        var desired = (n>0 ? ('(' + n + ') ') : '') + (base || 'PrimeDesk');
+        // Evita loop/alto CPU: só altera o <title> quando realmente mudar.
+        if(desired === cur) return;
+        __ASTRO_TITLE_LOCK__ = true;
+        document.title = desired;
+        __ASTRO_TITLE_LOCK__ = false;
+      }catch(e){ __ASTRO_TITLE_LOCK__ = false; }
+    }
+
+    // Mantém o badge em sincronia entre abas
+    try{
+      window.addEventListener('storage', function(ev){
+        if(ev && ev.key === STORAGE_TOASTS){ __astroUpdateTitleBadge(); }
+      });
+    }catch(e){}
+
+    // OBS: não observamos mais o <title> via MutationObserver pois isso pode
+    // causar loop de atualização e travamentos em alguns navegadores.
+
+    
+    // ===== Notificação do navegador =====
+    // Ativação é feita no Painel > Configurar Atendimentos.
+
+function __astroBrowserNotify(title, body, atendimentoId, toastId){
+      try{
+        // Não mostrar notificações do navegador na tela de registrar atendimento
+        if(__astroIsRegistrarAtendimento && __astroIsRegistrarAtendimento()) return;
+
+        
+        // Só notificar quando você estiver fora do sistema (nenhuma aba PrimeDesk visível)
+        try{
+          if(!document.hidden) return;
+          if(__astroAnyTabVisibleRecently && __astroAnyTabVisibleRecently()) return;
+        }catch(e){}
+if(!('Notification' in window)) return;
+        // Preferência do usuário (habilita/desabilita)
+        if(!pref(PREF_BROWSER_NOTIFY, false)) return;
+
+        // Ativação ocorre pelo Painel. Não mostramos botão automático.
+        if(Notification.permission !== 'granted') return;
+
+        var n = new Notification(title || 'Novo atendimento', {
+          body: body || '',
+          tag: 'atendimento_' + String(toastId || atendimentoId || ''),
+          renotify: true,
+          // Mantém a notificação até o usuário interagir (quando suportado)
+          requireInteraction: true
+        });
+        n.onclick = function(){
+          try{ window.focus(); }catch(e){}
+          try{ if(atendimentoId != null){ __astroOpenAtendimentoModal(atendimentoId, toastId); } }catch(e){}
+          try{ n.close(); }catch(e){}
+        };
+      }catch(e){}
+    }
+
+// Notificações de "novo atendimento" devem funcionar em qualquer página do sistema,
+// exceto em páginas embutidas (iframe ?embed=1) e na tela de registrar atendimento.
+    function computeIsAtendimentos(){
+      try{
+        if(__ASTRO_EMBED__) return false;
+        var p = (window.location && window.location.pathname) ? window.location.pathname : '';
+        // Não exibe/aciona notificações na própria tela onde o atendimento está sendo registrado.
+        if(/^\/atendimentos\/registrar\/?$/.test(p)) return false;
+        return true;
+      }catch(e){ return false; }
+    }
+
+    function __astroIsListaAtendimentos(){
+      try{
+        var p = (window.location && window.location.pathname) ? window.location.pathname : '';
+	        // Robustez: funciona mesmo se o sistema estiver em um subcaminho
+	        // (ex.: /sistema/atendimentos)
+	        return (
+	          p === '/atendimentos' ||
+	          p === '/atendimentos/' ||
+	          (p && (p.endsWith('/atendimentos') || p.endsWith('/atendimentos/')))
+	        );
+      }catch(e){ return false; }
+    }
+
+    function __astroIsRegistrarAtendimento(){
+      try{
+        var p = (window.location && window.location.pathname) ? window.location.pathname : '';
+        return (
+          p === '/atendimentos' ||
+          p === '/atendimentos/' ||
+          (p && (p.endsWith('/atendimentos') || p.endsWith('/atendimentos/')))
+        );
+      }catch(e){ return false; }
+    }
+
+
+    function __astroScheduleListaReload(delayMs){
+      try{
+        if(!__astroIsListaAtendimentos()) return;
+        if(window.__ASTRO_LIST_RELOAD_TIMER__){
+          try{ clearTimeout(window.__ASTRO_LIST_RELOAD_TIMER__); }catch(e){}
+        }
+        window.__ASTRO_LIST_RELOAD_TIMER__ = setTimeout(function(){
+          try{ window.location.reload(); }catch(e){}
+        }, delayMs || 0);
+      }catch(e){}
+    }
+
+	    // Recarrega a lista APENAS quando estiver na página de listagem e
+	    // APÓS a notificação sumir (auto-fechar) ou ser fechada.
+	    // Mantém a experiência estável em outras páginas.
+	    var __ASTRO_PENDING_LIST_RELOAD__ = false;
+	    function __astroMarkListaReloadPending(){
+	      try{ if(__astroIsListaAtendimentos()) __ASTRO_PENDING_LIST_RELOAD__ = true; }catch(e){}
+	    }
+	    function __astroClearListaReloadPending(){
+	      try{ __ASTRO_PENDING_LIST_RELOAD__ = false; }catch(e){}
+	    }
+	    function __astroMaybeReloadLista(){
+	      try{
+	        if(!__astroIsListaAtendimentos()) return;
+	        if(!__ASTRO_PENDING_LIST_RELOAD__) return;
+	        // Só recarrega quando não há toasts visíveis
+	        if(tc && tc.querySelector('.toast')) return;
+	        __astroClearListaReloadPending();
+	        __astroScheduleListaReload(200);
+	      }catch(e){}
+	    }
+
+    // Páginas embutidas no painel (iframe com ?embed=1) não devem exibir nem reidratar notificações.
+    // Isso evita toasts aparecendo "dentro" das mini-janelas do painel.
+    var __ASTRO_EMBED__ = false;
+    try{
+      __ASTRO_EMBED__ = (new URLSearchParams(window.location.search || '')).get('embed') === '1' || (window.self !== window.top);
+    }catch(e){ __ASTRO_EMBED__ = false; }
+
+    var IS_ATENDIMENTOS = true;
+
+    // Toast persistence
+    var STORAGE_TOASTS = 'astro_toasts';
+    
+    var STORAGE_VISIBLE_TAB = 'primedesk_visible_tab';
+    var __astroVisiblePulse = null;
+    function __astroMarkVisibleTab(){
+      try{ localStorage.setItem(STORAGE_VISIBLE_TAB, String(Date.now())); }catch(e){}
+    }
+    function __astroStartVisiblePulse(){
+      try{
+        if(__astroVisiblePulse) return;
+        __astroMarkVisibleTab();
+        __astroVisiblePulse = setInterval(__astroMarkVisibleTab, 2000);
+      }catch(e){}
+    }
+    function __astroStopVisiblePulse(){
+      try{ if(__astroVisiblePulse){ clearInterval(__astroVisiblePulse); __astroVisiblePulse = null; } }catch(e){}
+    }
+    function __astroAnyTabVisibleRecently(){
+      try{
+        var ts = parseInt(localStorage.getItem(STORAGE_VISIBLE_TAB) || '0', 10);
+        return ts && (Date.now() - ts) < 4500;
+      }catch(e){ return false; }
+    }
+    try{
+      document.addEventListener('visibilitychange', function(){
+        if(document.visibilityState === 'visible'){ __astroStartVisiblePulse(); }
+        else { __astroStopVisiblePulse(); }
+      });
+      if(document.visibilityState === 'visible'){ __astroStartVisiblePulse(); }
+    }catch(e){}
+
+    function loadToasts(){
+      try{
+        var raw = JSON.parse(localStorage.getItem(STORAGE_TOASTS) || '[]');
+        if(!Array.isArray(raw)) return [];
+        // Descarta pendências muito antigas (evita "fantasmas" após resets/atualizações).
+        var now = Date.now();
+        return raw.filter(function(t){
+          try{
+            var ts = (t && t.ts) ? parseInt(t.ts, 10) : 0;
+            if(!ts) return true; // compat com versões antigas
+            return (now - ts) < (24 * 60 * 60 * 1000);
+          }catch(e){ return true; }
+        });
+      }catch(e){ return []; }
+    }
+    function saveToasts(list){ try{ localStorage.setItem(STORAGE_TOASTS, JSON.stringify(list)); }catch(e){} }
+    function upsertToast(t){
+      var list = loadToasts();
+      var idx = list.findIndex(function(x){ return String(x.id) === String(t.id); });
+      if(idx >= 0) list[idx] = t; else list.push(t);
+      saveToasts(list);
+      __astroUpdateTitleBadge();
+    }
+    function removeToast(id){
+      var list = loadToasts().filter(function(x){ return String(x.id) !== String(id); });
+      saveToasts(list);
+      __astroUpdateTitleBadge();
+    }
+
+    function renderToast(t){
+      try{ if(__ASTRO_EMBED__) return; }catch(e){}
+      if(!tc){ return; }
+      // Evita duplicar o mesmo toast (ex.: ao navegar entre páginas)
+      try{ if(tc.querySelector('[data-id="' + t.id + '"]')) return; }catch(e){}
+      var el = document.createElement('div');
+      el.className = 'toast';
+      el.setAttribute('data-id', t.id);
+      if(t.atendimento_id != null){ el.setAttribute('data-atendimento-id', t.atendimento_id); }
+      el.setAttribute('role','button');
+      el.setAttribute('tabindex','0');
+      var titleLine = t.title || 'Novo atendimento';
+      var metaLine = t.meta || '';
+      // Migração: versões antigas salvavam o meta como "Tipo: X".
+      // Requisito atual: mostrar somente "X".
+      try{
+        if(metaLine && /^\s*Tipo:\s*/i.test(String(metaLine))){
+          metaLine = String(metaLine).replace(/^\s*Tipo:\s*/i, '');
+        }
+      }catch(e){}
+      var content = ''
+                  + '<div style="display:flex;gap:10px;align-items:flex-start;min-width:0;width:100%">'
+                  +   '<div style="display:flex;flex-direction:column;gap:4px;min-width:0">'
+                  +     '<div><strong>'+ __astroEscapeHtml(titleLine) +'</strong></div>'
+                  +     (metaLine ? ('<div class="meta">'+ __astroEscapeHtml(metaLine) +'</div>') : '')
+                  +     '<div class="meta" style="opacity:.75">Clique para abrir</div>'
+                  +   '</div>'
+                  +   '<div class="close" title="Fechar" aria-label="Fechar" role="button" tabindex="0">✕</div>'
+                  + '</div>';
+      el.innerHTML = content;
+
+      function openIt(){
+        try{
+          if(t.atendimento_id != null){
+            __astroOpenAtendimentoModal(t.atendimento_id, t.id);
+          }
+        }catch(e){}
+      }
+
+      // Fechar manualmente (remove do painel e do armazenamento)
+      try{
+        var closeBtn = el.querySelector('.close');
+        var doClose = function(ev){
+          try{ if(ev){ ev.stopPropagation(); ev.preventDefault(); } }catch(e){}
+          try{ __astroRemoveToastById(t.id); }catch(e){}
+          try{ el.remove(); }catch(e){}
+          try{ __astroMaybeReloadLista(); }catch(e){}
+        };
+        if(closeBtn){
+          closeBtn.addEventListener('click', doClose);
+          closeBtn.addEventListener('keydown', function(ev){
+            if(ev.key === 'Enter' || ev.key === ' '){ doClose(ev); }
+          });
+        }
+      }catch(e){}
+      el.addEventListener('click', function(){ openIt(); });
+      el.addEventListener('keydown', function(ev){
+        if(ev.key === 'Enter' || ev.key === ' '){
+          try{ ev.preventDefault(); }catch(e){}
+          openIt();
+        }
+      });
+
+      tc.appendChild(el);
+      // A notificação NÃO some sozinha: só desaparece após finalizar o atendimento.
+    }
+
+	    // Se a notificação sumir por qualquer outro motivo (ex.: DOM alterado),
+	    // ainda assim garantimos o reload da lista.
+	    try{
+	      if(tc && window.MutationObserver){
+	        var __ASTRO_TOAST_OBSERVER__ = new MutationObserver(function(){
+	          __astroMaybeReloadLista();
+	        });
+	        __ASTRO_TOAST_OBSERVER__.observe(tc, { childList: true });
+	      }
+	    }catch(e){}
+
+    function rehydrateToasts(){
+      try{ if(__ASTRO_EMBED__) return; }catch(e){}
+      var list = loadToasts();
+      for(var i=0;i<list.length;i++){ renderToast(list[i]); }
+      __astroUpdateTitleBadge();
+    }
+
+    if(audio){ audio.volume = 0.6; }
+    if(btn){ btn.addEventListener('click', function(){ tryPlay(1); }); }
+
+    // Inicializa preferências visuais/sonoras padrão (sem mexer no que já houver)
+    if(localStorage.getItem(PREF_NOTIFY) === null) setPref(PREF_NOTIFY, true);
+    if(localStorage.getItem(PREF_SOUND)  === null) setPref(PREF_SOUND,  true);
+
+    // Reidrata notificações pendentes somente quando o usuário está autenticado.
+    // Após reset/logout, o localStorage pode manter toasts antigos; isso gerava "notificações fantasmas" na tela de login.
+    var __ASTRO_LOGGED_IN__ = false;
+    try{ __ASTRO_LOGGED_IN__ = !!meId; }catch(e){}
+    if(__ASTRO_LOGGED_IN__ && !__ASTRO_EMBED__){
+      try{ rehydrateToasts(); }catch(e){}
+      try{ __astroUpdateTitleBadge(); }catch(e){}
+      // Se a página foi recarregada para atualizar a lista antes da notificação, toca o beep após reidratar os toasts.
+      try{
+        if(window.location && window.location.pathname === '/atendimentos'){
+          var flag = null;
+          try{ flag = sessionStorage.getItem('pd_reloading_for_toast'); }catch(e){}
+          if(flag){
+            try{ sessionStorage.removeItem('pd_reloading_for_toast'); }catch(e){}
+            var beep = false;
+            try{ beep = (localStorage.getItem('pd_beep_after_reload') === '1'); }catch(e){}
+            try{ localStorage.removeItem('pd_beep_after_reload'); }catch(e){}
+            if(beep){ try{ tryPlay(5); }catch(e){} }
+          }
+        }
+	      }catch(e){}
+    }else{
+      // Se não está logado, não mostra e nem mantém pendências visuais.
+      try{ localStorage.removeItem(STORAGE_TOASTS); }catch(e){}
+      try{ __astroUpdateTitleBadge(); }catch(e){}
+    }
+    // Botão de permissão foi removido (ativação é feita via Painel > Atendimentos).
+
+    var es = null;
+    var reloadTimer = null;
+
+    function connect(){
+      if(!window.EventSource) return;
+      if(__ASTRO_EMBED__) return;
+      if(!computeIsAtendimentos()) return;
+      if(es) return;
+      es = new EventSource('/stream/atendimentos?client_id=' + (window.__ASTRO_CLIENT_ID__||''));
+
+      es.onmessage = function(ev){
+        try{
+          if(__ASTRO_EMBED__) { return; }
+          if(!computeIsAtendimentos()) { return; }
+
+          var data = JSON.parse(ev.data || '{}');
+          if(data && data.by != null && meId && String(data.by) === String(meId)) { return; }
+          var isSelf = (data && data.origin_tab && window.TAB_ID && String(data.origin_tab) === String(window.TAB_ID));
+          if(isSelf){ return; }
+          var notifyOn = pref(PREF_NOTIFY, true);
+          var soundOn  = pref(PREF_SOUND,  true);
+
+          // Formato: título em 2 linhas (Nome e Tipo)
+          var raw = data.titulo || 'Novo atendimento registrado';
+          var parts = raw.split(' - ');
+          var title = parts[0] || raw;
+          var tipoTxt = data.tipo || (parts.length>1 ? parts.slice(1).join(' - ') : null);
+          // Requisito: mostrar apenas o tipo, sem o prefixo "Tipo:"
+          var meta = tipoTxt ? ('' + tipoTxt) : '';
+          var atId = (data.id != null ? data.id : null);
+          var id = (atId != null ? atId : (Date.now().toString()));
+
+          // Se estiver em /atendimentos, recarrega a página antes de exibir a notificação (lista atualizada primeiro).
+          try{
+            if(window.location && window.location.pathname === '/atendimentos'){
+              var toast = { id: id, atendimento_id: atId, title: title, meta: meta, ts: Date.now() };
+              try{ upsertToast(toast); }catch(e){}
+              try{
+                if(soundOn) localStorage.setItem('pd_beep_after_reload','1');
+                else localStorage.removeItem('pd_beep_after_reload');
+              }catch(e){}
+              try{
+                if(!sessionStorage.getItem('pd_reloading_for_toast')){
+                  sessionStorage.setItem('pd_reloading_for_toast','1');
+                  window.location.reload();
+                }
+              }catch(e){
+                try{ window.location.reload(); }catch(e2){}
+              }
+              return;
+            }
+          }catch(e){}
+          // Sempre registra a pendência no storage para o badge funcionar mesmo se o usuário
+          // tiver desativado popups/toasts.
+          var toast = { id: id, atendimento_id: atId, title: title, meta: meta, ts: Date.now() };
+          try{ upsertToast(toast); }catch(e){}
+
+          // Popup/áudio ficam condicionados às preferências.
+          if(notifyOn && !__ASTRO_EMBED__){
+            if(soundOn){ tryPlay(5); }
+            // Se estiver em uma mini-janela do painel (iframe embed), não renderiza.
+            // Em páginas normais, renderiza.
+            renderToast(toast);
+          }
+
+          // Notificação do navegador (funciona mesmo em outra guia)
+          try{
+            var body = title + (meta ? (' — ' + meta) : '');
+            __astroBrowserNotify('Novo atendimento', body, atId, id);
+          }catch(e){}
+
+	          // Não fazemos reload automático fora da listagem.
+        }catch(e){ /* ignora */ }
+      };
+      es.onerror = function(){
+        try { if(es){ es.close(); } } catch(e){}
+        es = null;
+        setTimeout(connect, 3000);
+      };
+    }
+    // Identificador único do navegador/dispositivo para suprimir notificações locais
+    (function(){
+      try{
+        var CID_KEY = 'astro_client_id';
+        var clientId = localStorage.getItem(CID_KEY);
+        if(!clientId){
+          clientId = (crypto && crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(36)+Math.random().toString(36).slice(2)));
+          localStorage.setItem(CID_KEY, clientId);
+        }
+        window.__ASTRO_CLIENT_ID__ = clientId;
+      }catch(e){}
+    })();
+
+    function disconnect(){
+      try { if(es){ es.close(); } } catch(e){}
+      es = null;
+      if(reloadTimer) { try{ clearTimeout(reloadTimer);}catch(e){} reloadTimer = null; }
+      // Ao sair de Atendimentos, some com a UI dos toasts (sem apagar o histórico salvo)
+      try { if(tc){ tc.innerHTML = ''; } } catch(e){}
+      try { if(btn){ btn.style.display = 'none'; } } catch(e){}
+    }
+
+    window.__ASTRO_UPDATE_NOTIFICATIONS__ = function(){
+      IS_ATENDIMENTOS = computeIsAtendimentos();
+      if(IS_ATENDIMENTOS){        connect();
+      } else {
+        disconnect();
+      }
+    };
+
+    // Inicializa no carregamento
+    // Permissão de notificação é habilitada pelo Painel > Atendimentos (sem botão flutuante automático).
+    window.__ASTRO_UPDATE_NOTIFICATIONS__();
+  })();
+
+  </script>
+
+
+
+
+<script>
+(function() {
+  function sameOrigin(url){
+    try { var u = new URL(url, window.location.origin); return u.origin === window.location.origin; } catch(e){ return false; }
+  }
+  function shouldIntercept(a){
+    if (!a) return false;
+    var href = a.getAttribute('href') || '';
+    if (href.startsWith('#')) return false;
+    if (a.hasAttribute('download')) return false;
+    if (a.target && a.target === '_blank') return false;
+    if (href.startsWith('mailto:') || href.startsWith('tel:')) return false;
+    if (!sameOrigin(href)) return false;
+    // Não interceptar links de download
+    var _h = (href || '').toLowerCase();
+    if (/\.(pdf|docx|xlsx|xls|zip)(\?|#|$)/i.test(_h)) return false;
+    // Allow only internal app routes starting with '/'
+    if (!href.startsWith('/')) return false;
+    // Nunca interceptar logout nem login nem a raiz,
+    // para garantir recarregamento completo e atualizar header/nav corretamente
+    if (href.startsWith('/logout')) return false;
+    if (href === '/login' || href.startsWith('/login?')) return false;
+    if (href === '/') return false;
+    if (href.startsWith('/admin/backup/export')) return false;
+    if (href.startsWith('/painel/backup/export')) return false;
+    return true;
+  }
+  
+var __MASK_URL__ = false;
+// Navegação parcial (SPA leve)
+// Requisito: manter a rota real na barra de endereço,
+// mas ainda permitir F5/voltar/avançar dentro da aba.
+function __setUrl(route, push){
+  // Por padrão, o sistema mascara a URL (mostra sempre "/") e guarda a rota real em history.state.u.
+  // Para desativar (mostrar a rota real), configure MASK_URL=0 no .env.
+  try {
+    if (__MASK_URL__) {
+      // IMPORTANTE:
+      // Não sobrescrever lastRoute com "/" quando a URL visível está mascarada.
+      // Isso quebrava o F5 (recarregar) — na segunda atualização o sistema "esquecia" a rota real.
+      try {
+        if (route && route !== '/') sessionStorage.setItem('lastRoute', route);
+      } catch(e) {}
+      const state = { u: (route || (window.location.pathname + window.location.search)) };
+      if (push === false) history.replaceState(state, '', '/');
+      else history.pushState(state, '', '/');
+    } else {
+      const state = { u: (route || (window.location.pathname + window.location.search)) };
+      if (push === false) history.replaceState(state, '', (route || '/'));
+      else history.pushState(state, '', (route || '/'));
+      try { sessionStorage.setItem('lastRoute', (route || '/')); } catch(e) {}
+    }
+  } catch(e) {}
+}
+
+async function loadPartial(url, push){
+    try {
+      const res = await fetch(url, { headers: { 'X-Requested-With': 'fetch' }, credentials: 'same-origin' });
+      const ct = (res.headers && res.headers.get) ? (res.headers.get('content-type') || '') : '';
+      // Se não for HTML, não faz navegação parcial (isso inclui downloads como DOCX/PDF/XLSX)
+      if (ct && ct.indexOf('text/html') === -1) { window.location.href = url; return; }
+      const text = await res.text();
+      const doc = new DOMParser().parseFromString(text, 'text/html');
+      if(doc && doc.title) { try{ document.title = doc.title; }catch(e){} }
+
+      // Atualiza também o header/nav e o footer quando a rota muda.
+      // Isso é importante porque algumas páginas (ex.: "Escolha o ambiente") ocultam o header,
+      // e a navegação parcial troca apenas o <main>, deixando o topo desatualizado.
+      try {
+        const newHeader = doc.querySelector('header');
+        const curHeader = document.querySelector('header');
+        if (newHeader) {
+          if (curHeader) {
+            curHeader.outerHTML = newHeader.outerHTML;
+          } else {
+            document.body.insertAdjacentHTML('afterbegin', newHeader.outerHTML);
+          }
+        } else {
+          if (curHeader && curHeader.parentNode) curHeader.parentNode.removeChild(curHeader);
+        }
+      } catch(e) {}
+
+      try {
+        const newFooter = doc.querySelector('footer.footer, footer');
+        const curFooter = document.querySelector('footer.footer, footer');
+        if (newFooter) {
+          if (curFooter) {
+            curFooter.outerHTML = newFooter.outerHTML;
+          } else {
+            document.body.insertAdjacentHTML('beforeend', newFooter.outerHTML);
+          }
+        } else {
+          if (curFooter && curFooter.parentNode) curFooter.parentNode.removeChild(curFooter);
+        }
+      } catch(e) {}
+      const newMain = doc.querySelector('main.container, main#app-main');
+      const appMain = document.getElementById('app-main');
+      if (newMain && appMain){
+        appMain.innerHTML = newMain.innerHTML;
+        // Re-execute inline scripts found in the newly injected markup
+        var scripts = appMain.querySelectorAll('script');
+        scripts.forEach(function(oldS){
+          var s = document.createElement('script');
+          if (oldS.src) s.src = oldS.src;
+          if (oldS.type) s.type = oldS.type;
+          s.textContent = oldS.textContent;
+          document.body.appendChild(s);
+          oldS.parentNode && oldS.parentNode.removeChild(oldS);
+        });
+      }
+      // Mantém a rota real na barra de endereço e guarda a rota no history/state.
+      __setUrl(url, push);
+      // Atualiza o comportamento de notificações conforme o módulo atual
+      if(window.__ASTRO_UPDATE_NOTIFICATIONS__) { try{ window.__ASTRO_UPDATE_NOTIFICATIONS__(); } catch(e){} }
+      // Focus the main landmark for accessibility
+      appMain && appMain.setAttribute('tabindex', '-1'); appMain && appMain.focus();
+    } catch (e) {
+      console.error('Partial load failed:', e);
+      // Fallback: navigate normally
+      window.location.href = url;
+    }
+  }
+  
+// Atualiza a página atual mantendo a rota real (mesmo quando a barra está mascarada como "/").
+// Usado após salvar em modais no painel para não "voltar pro início".
+window.__ASTRO_REFRESH_CURRENT__ = async function(){
+  try {
+    var route = null;
+    try { route = (history.state && history.state.u) ? history.state.u : null; } catch(e) {}
+    if (!route) {
+      try { route = sessionStorage.getItem('lastRoute') || null; } catch(e) {}
+    }
+    route = route || (window.location.pathname + window.location.search) || '/';
+    await loadPartial(route, false);
+  } catch(e) {
+    try { window.location.reload(); } catch(e2) {}
+  }
+};
+
+window.addEventListener('popstate', function(e){
+    // Voltar/avançar: usamos a rota real guardada no state
+    var u = (e && e.state && e.state.u) ? e.state.u : null;
+    if(!u){
+      try{ u = sessionStorage.getItem('lastRoute'); }catch(err){}
+    }
+    if(!u) u = '/';
+    loadPartial(u, false);
+  });
+
+  // Ao carregar uma rota direta (ex.: /atendimentos), garantimos que o state esteja coerente e
+  // garantimos que o conteúdo atual continue sendo exibido.
+  (function(){
+    try{
+      var current = location.pathname + (location.search || '') + (location.hash || '');
+
+      // Se a URL está mascarada como "/" (por navegação parcial anterior),
+      // precisamos restaurar o conteúdo da última rota real salva antes de qualquer sobrescrita.
+      if (__MASK_URL__ && location.pathname === '/') {
+        var last = null;
+        try { last = (history.state && history.state.u) ? history.state.u : null; } catch(e) {}
+        if (!last) { try { last = sessionStorage.getItem('lastRoute') || null; } catch(e) {} }
+        if (last && last !== '/') {
+          // Carrega o conteúdo da última rota real e mantém a barra sempre em "/".
+          // Isso garante que múltiplos F5 permaneçam na mesma página.
+          try { loadPartial(last, false); } catch(e) {}
+          __setUrl(last, false);
+          return;
+        }
+      }
+
+      // Guarda a rota real (quando existir), mas mantém URL visível como "/".
+      __setUrl(current || '/', false);
+    }catch(e){}
+  })();
+
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a');
+    if (!a) return;
+
+    var href = a.getAttribute('href') || '';
+    // Ao sair, limpamos a rota guardada para não "voltar" para uma tela antiga (ex.: login)
+    if (href.startsWith('/logout')) {
+      try { sessionStorage.removeItem('lastRoute'); } catch(err) {}
+      return; // deixa o navegador navegar normalmente
+    }
+
+    if (!shouldIntercept(a)) return;
+    e.preventDefault();
+    loadPartial(href, true);
+  }, true);
+})();
+</script>
+
+<script>
+// Abrir atendimento em modal quando clicar na linha/label da lista (sem navegar)
+(function(){
+  function openId(id){
+    try{
+      if(!id) return;
+      if(window.__ASTRO_OPEN_ATENDIMENTO_MODAL__){
+        window.__ASTRO_OPEN_ATENDIMENTO_MODAL__(id);
+      }
+    }catch(e){}
+  }
+
+  document.addEventListener('click', function(e){
+    try{
+      var t = e.target;
+      if(!t || !t.closest) return;
+
+      // Link explícito
+      var link = t.closest('.js-open-atendimento-link');
+      if(link){
+        e.preventDefault();
+        e.stopPropagation();
+        openId(link.getAttribute('data-atendimento-id'));
+        return;
+      }
+
+      // Linha clicável (ignora cliques em ações)
+      var row = t.closest('tr.js-open-atendimento');
+      if(!row) return;
+      if(t.closest('.action-group') || t.closest('[data-copy]') || t.closest('form') || t.closest('button') || t.closest('a.action-btn')) return;
+
+      e.preventDefault();
+      openId(row.getAttribute('data-atendimento-id'));
+    }catch(err){}
+  }, true);
+
+  // Acessibilidade: Enter/Espaço quando a linha está focada
+  document.addEventListener('keydown', function(e){
+    try{
+      if(!(e.key === 'Enter' || e.key === ' ')) return;
+      var el = document.activeElement;
+      if(!el || !el.closest) return;
+      var row = el.closest('tr.js-open-atendimento');
+      if(!row) return;
+      e.preventDefault();
+      openId(row.getAttribute('data-atendimento-id'));
+    }catch(err){}
+  });
+})();
+</script>
+
+<script>
+// Em /lista (Lista de registros), o atendimento deve abrir a TELA de edição (não o modal de finalizar).
+(function(){
+  function goEdit(id){
+    try{
+      if(!id) return;
+      window.location.href = '/atendimento/' + encodeURIComponent(id);
+    }catch(e){}
+  }
+
+  document.addEventListener('click', function(e){
+    try{
+      var t = e.target;
+      if(!t || !t.closest) return;
+      var row = t.closest('tr.js-open-atendimento-edit');
+      if(!row) return;
+      if(t.closest('.action-group') || t.closest('[data-copy]') || t.closest('form') || t.closest('button') || t.closest('a.action-btn')) return;
+      // links normais continuam funcionando
+      if(t.closest('a')) return;
+      e.preventDefault();
+      goEdit(row.getAttribute('data-atendimento-id'));
+    }catch(err){}
+  }, true);
+
+  document.addEventListener('keydown', function(e){
+    try{
+      if(!(e.key === 'Enter' || e.key === ' ')) return;
+      var el = document.activeElement;
+      if(!el || !el.closest) return;
+      var row = el.closest('tr.js-open-atendimento-edit');
+      if(!row) return;
+      e.preventDefault();
+      goEdit(row.getAttribute('data-atendimento-id'));
+    }catch(err){}
+  });
+})();
+</script>
+
+<script>
+// Mini janela (modal) de VISITA: deve ser IGUAL ao modal de atendimento (mesmo layout/quantidade de campos),
+// apenas ajustando textos/ação para VISITA.
+(function(){
+  var M = document.getElementById('astroVisitaModal');
+  var B = document.getElementById('astroVisitaBody');
+  var BTN_FINAL = document.getElementById('astroVisitaFinalizar');
+  var BTN_EDIT  = document.getElementById('astroVisitaEditar');
+  var A_PRINT = document.getElementById('astroVisitaPrint');
+  // Modal de confirmação de pendências (antes de finalizar visita)
+  var PM = document.getElementById('astroPendenciasModal');
+  var PM_BTN_SIM   = document.getElementById('astroPendenciasSim');
+  var PM_BTN_NAO   = document.getElementById('astroPendenciasNao');
+  if(!M || !B) return;
+
+  var STATE = { visitaId: null };
+  function setPendOpen(on){
+    try{
+      if(!PM) return;
+      if(on){
+        PM.classList.add('is-open');
+        PM.setAttribute('aria-hidden','false');
+        document.body.classList.add('modal-open');
+      }else{
+        PM.classList.remove('is-open');
+        PM.setAttribute('aria-hidden','true');
+        // mantém modal principal aberto
+      }
+    }catch(e){}
+  }
+
+  // Fechar pendências (backdrop/btn/ESC)
+  try{
+    if(PM){
+      PM.querySelectorAll('[data-close="1"]').forEach(function(btn){
+        btn.addEventListener('click', function(){ setPendOpen(false); });
+      });
+    }
+    document.addEventListener('keydown', function(ev){
+      try{ if(ev.key === 'Escape' && PM && PM.classList.contains('is-open')) setPendOpen(false); }catch(_e){}
+    });
+  }catch(e){}
+  var CACHED_SETTINGS = null;
+
+  function esc(s){
+    return String(s==null?'':s)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+  }
+
+  function setOpen(on){
+    try{
+      if(on){
+        M.classList.add('is-open');
+        M.setAttribute('aria-hidden','false');
+        document.body.classList.add('modal-open');
+      }else{
+        M.classList.remove('is-open');
+        M.setAttribute('aria-hidden','true');
+        document.body.classList.remove('modal-open');
+        STATE.visitaId = null;
+      }
+    }catch(e){}
+  }
+
+  // Fechar por backdrop/btn/ESC
+  try{
+    M.querySelectorAll('[data-close="1"]').forEach(function(btn){
+      btn.addEventListener('click', function(){ setOpen(false); });
+    });
+    document.addEventListener('keydown', function(ev){
+      if(ev.key === 'Escape' && M.classList.contains('is-open')) setOpen(false);
+    });
+  }catch(e){}
+
+  async function getSettings(){
+    if(CACHED_SETTINGS) return CACHED_SETTINGS;
+    try{
+      var r = await fetch('/api/visitas/settings', { headers:{'Accept':'application/json'}, credentials:'same-origin' });
+      if(!r.ok) throw new Error('http_'+r.status);
+      var j = await r.json();
+      CACHED_SETTINGS = (j && j.settings) ? j.settings : (j || {});
+    }catch(e){
+      CACHED_SETTINGS = {};
+    }
+    return CACHED_SETTINGS;
+  }
+
+  function optList(arr, current){
+    var cur = String(current||'');
+    var out = '<option value="">Selecione</option>';
+    (arr||[]).forEach(function(v){
+      var tv = String(v||'').trim();
+      if(!tv) return;
+      var sel = (tv.toUpperCase() === cur.toUpperCase()) ? ' selected' : '';
+      out += '<option value="'+esc(tv)+'"'+sel+'>'+esc(tv)+'</option>';
+    });
+    // garante que o valor atual apareça mesmo se não existir na lista
+    if(cur && !(arr||[]).some(function(v){ return String(v||'').trim().toUpperCase() === cur.toUpperCase(); })){
+      out += '<option value="'+esc(cur)+'" selected>'+esc(cur)+'</option>';
+    }
+    return out;
+  }
+
+  function normYesNo(v){
+    var s = String(v||'').toLowerCase();
+    return (s==='sim'||s==='s'||s==='1'||s==='true'||s==='yes') ? 'sim' : 'nao';
+  }
+  function normStatus(v){
+    var s = String(v||'aberto').toLowerCase();
+    if(s==='agendada' || s==='aberta') s='aberto';
+    if(s==='realizada' || s==='finalizada') s='finalizado';
+    return (s==='finalizado') ? 'finalizado' : 'aberto';
+  }
+
+  function fmtCpf(v){
+    try{
+      var d = String(v||'').replace(/\D/g,'');
+      if(!d) return '';
+      if(d.length>11) d=d.slice(-11);
+      if(d.length<11) d = d.padStart(11,'0');
+      return d.slice(0,3)+'.'+d.slice(3,6)+'.'+d.slice(6,9)+'-'+d.slice(9,11);
+    }catch(e){ return String(v||''); }
+  }
+
+  function fmtDataHora(v){
+    // Visitas podem ter data/hora separados ou timestamp ISO.
+    try{
+      var raw = (v && (v.data_fmt || v.criado_em_br || v.criado_em || v.data || v.created_at || v.atualizado_em)) || '';
+      if(raw && typeof raw === 'string'){
+        // já vem em BR?
+        if(/\d{2}\/\d{2}\/\d{4}/.test(raw)) return raw;
+        // ISO
+        if(raw.includes('T')){
+          var d = new Date(raw);
+          if(!isNaN(d.getTime())){
+            var dd = String(d.getDate()).padStart(2,'0');
+            var mm = String(d.getMonth()+1).padStart(2,'0');
+            var yy = d.getFullYear();
+            var hh = String(d.getHours()).padStart(2,'0');
+            var mi = String(d.getMinutes()).padStart(2,'0');
+            return dd+'/'+mm+'/'+yy+' '+hh+':'+mi;
+          }
+        }
+        // YYYY-MM-DD
+        if(/^\d{4}-\d{2}-\d{2}$/.test(raw)){
+          var parts = raw.split('-');
+          var base = parts[2]+'/'+parts[1]+'/'+parts[0];
+          var h = (v && (v.hora || v.horario || v.hora_visita)) || '';
+          if(h){
+            h = String(h).slice(0,5);
+            return base+' '+h;
+          }
+          return base;
+        }
+      }
+    }catch(e){}
+    return '';
+  }
+
+  async function render(visita){
+    // IMPORTANTE: este modal precisa ser IGUAL ao modal de ATENDIMENTO.
+    // Só mudam os rótulos do cabeçalho (já é "Visita") e o botão "Finalizar visita".
+    var v = visita || {};
+    var settings = await getSettings();
+
+    var setorAtual = (v.setor || v.unidade || '');
+    var tiposPorUnidade = (settings.tipos_por_unidade && typeof settings.tipos_por_unidade === 'object') ? settings.tipos_por_unidade : {};
+    var tipos = (setorAtual && Array.isArray(tiposPorUnidade[setorAtual])) ? tiposPorUnidade[setorAtual] : (settings.tipos || []);
+    var setores = settings.setores || [];
+
+    var nome = v.nome_cidadao || v.nome || '';
+    var cpf = fmtCpf(v.cpf || '');
+    var tipo = v.tipo || v.motivo || '';
+    var status = normStatus(v.status || 'aberto');
+    var protocolo = v.id || '';
+    var dataHora = fmtDataHora(v) || '';
+
+    // garante que o setor atual apareça mesmo se não existir na lista
+    if(setorAtual && !(setores||[]).some(function(s){ return String(s||'') === String(setorAtual); })){
+      setores = [setorAtual].concat(setores||[]);
+    }
+
+    // HTML espelhado do modal de atendimento
+    var html = ''
+      + '<form id="astroVisitaForm" autocomplete="off">'
+      +   '<input type="hidden" name="return_to" value="'+esc((location.pathname||'/') + (location.search||''))+'">'
+      +   '<div class="grid">'
+      +     '<div class="row"><div class="k">Protocolo</div><div class="v">'+esc(protocolo)+'</div></div>'
+      +     '<div class="row"><div class="k">Data</div><div class="v">'+esc(dataHora)+'</div></div>'
+
+      +     '<div class="row">'
+      +       '<div class="k">Nome</div>'
+      +       '<input class="input" type="text" name="nome_cidadao" value="'+esc(nome||'')+'" placeholder="Nome" />'
+      +     '</div>'
+
+      +     '<div class="row">'
+      +       '<div class="k">CPF</div>'
+      +       '<div class="cpf-wrap" style="display:flex;gap:8px;align-items:center">'
+      +         '<input class="input" id="astroVisitaCpfInput" type="text" name="cpf" value="'+esc(cpf||'')+'" placeholder="000.000.000-00" />'
+      +         '<button type="button" class="btn" id="astroVisitaCopyCpfBtn" data-copy="'+esc(cpf||'')+'" title="Copiar CPF" aria-label="Copiar CPF" style="padding:8px 10px;border-radius:10px">'
+      +           '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      +             '<rect x="9" y="9" width="13" height="13" rx="2"></rect>'
+      +             '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>'
+      +           '</svg>'
+      +         '</button>'
+      +       '</div>'
+      +     '</div>'
+
+      +     '<div class="row">'
+      +       '<div class="k">Tipo</div>'
+      +       '<select class="select" name="tipo">'+optList(tipos, tipo)+'</select>'
+      +     '</div>'
+
+      +     '<div class="row">'
+      +       '<div class="k">Unidade</div>'
+      +       '<select class="select" name="setor">'+optList(setores, setorAtual)+'</select>'
+      +     '</div>'
+      +   '</div>'
+      +   '<div style="margin-top:10px;opacity:.8;font-size:.9rem">Status: <strong>'+(status==='finalizado'?'Finalizado':'Aberto')+'</strong></div>'
+      +   '<input type="hidden" name="status" value="'+esc(status)+'">'
+      + '</form>';
+
+    B.innerHTML = html;
+
+    // Mantém o botão de copiar CPF sincronizado
+    try{
+      var _cpfIn = document.getElementById('astroVisitaCpfInput');
+      var _cpfBtn = document.getElementById('astroVisitaCopyCpfBtn');
+      if(_cpfIn && _cpfBtn){
+        _cpfBtn.setAttribute('data-copy', _cpfIn.value || '');
+        _cpfIn.addEventListener('input', function(){
+          try{ _cpfBtn.setAttribute('data-copy', _cpfIn.value || ''); }catch(e){}
+        });
+      }
+    }catch(e){}
+  }
+
+  async function loadVisita(id){
+    try{
+      B.innerHTML = 'Carregando…';
+      var r = await fetch('/api/visitas/item/' + encodeURIComponent(String(id)), { headers:{'Accept':'application/json'}, credentials:'same-origin' });
+      if(!r.ok) throw new Error('http_'+r.status);
+      var j = await r.json();
+      if(!j || !j.ok) throw new Error('bad');
+      await render(j.visita || {});
+    }catch(e){
+      B.innerHTML = 'Não foi possível carregar os dados da visita.';
+    }
+  }
+
+  async function openModal(id){
+    try{
+      if(!id) return;
+      STATE.visitaId = id;
+      if(A_PRINT) A_PRINT.href = '/visitas/' + encodeURIComponent(String(id)) + '/ficha.pdf';
+      setOpen(true);
+      await loadVisita(id);
+    }catch(e){}
+  }
+
+  // Exposição global
+  try{ window.__ASTRO_OPEN_VISITA_MODAL__ = openModal; }catch(e){}
+
+  async function __finalizarVisitaComPendencias(pend){
+    var id = null;
+    try{
+      id = STATE.visitaId;
+      if(!id) return;
+
+      var form = document.getElementById('astroVisitaForm');
+      if(!form) return;
+
+      // Registra pendências (sim/nao) na visita
+      try{
+        // garante um input hidden para pendencias no form do modal
+        var hidden = form.querySelector('input[name="pendencias"]');
+        if(!hidden){
+          hidden = document.createElement('input');
+          hidden.type = 'hidden';
+          hidden.name = 'pendencias';
+          form.appendChild(hidden);
+        }
+        hidden.value = (String(pend||'nao').toLowerCase()==='sim') ? 'sim' : 'nao';
+      }catch(e){}
+
+      // Força status finalizado antes de enviar
+      try{
+        var stSel = form.querySelector('select[name="status"]');
+        if(stSel) stSel.value = 'finalizado';
+      }catch(e){}
+
+      var fd = new FormData(form);
+      fd.set('status', 'finalizado');
+      fd.set('pendencias', (String(pend||'nao').toLowerCase()==='sim') ? 'sim' : 'nao');
+
+      BTN_FINAL.disabled = true;
+      BTN_FINAL.textContent = 'Finalizando...';
+
+      var res = await fetch('/visitas/' + encodeURIComponent(String(id)) + '/', { method:'POST', body: fd, credentials:'same-origin' });
+      if(!res.ok) throw new Error('http_'+res.status);
+
+      // Atualiza a linha na lista (sem recarregar)
+      try{
+        var row = document.querySelector('tr.js-open-visita[data-visita-id="'+String(id)+'"]');
+        if(row){
+          var statusTd = row.querySelector('td[data-col="status"]');
+          if(statusTd){
+            statusTd.innerHTML = '<span class="badge badge-green">Finalizado</span>';
+          }
+        }
+      }catch(e){}
+
+      setOpen(false);
+
+      // Se a página atual usa navegação parcial, tenta atualizar para refletir filtros/paginação
+      try{ if(window.__ASTRO_REFRESH_CURRENT__){ window.__ASTRO_REFRESH_CURRENT__(); } }catch(e){}
+    }catch(e){
+      // mantém aberto
+    }finally{
+      try{ BTN_FINAL.disabled = false; BTN_FINAL.textContent = 'Finalizar visita'; }catch(_){ }
+    }
+  }
+
+  // Finalizar visita: abre a pergunta de pendências e salva a escolha antes de finalizar
+  if(BTN_FINAL){
+    BTN_FINAL.addEventListener('click', function(){
+      try{
+        if(!STATE.visitaId) return;
+        // abre modal de pendências (profissional, dentro do sistema)
+        if(PM){
+          setPendOpen(true);
+        }else{
+          // fallback (caso o modal não exista por algum motivo)
+          __finalizarVisitaComPendencias('nao');
+        }
+      }catch(e){}
+    });
+  }
+
+  // Ações do modal de pendências
+  try{
+    if(PM_BTN_SIM){
+      PM_BTN_SIM.addEventListener('click', async function(){
+        try{ setPendOpen(false); }catch(e){}
+        await __finalizarVisitaComPendencias('sim');
+      });
+    }
+    if(PM_BTN_NAO){
+      PM_BTN_NAO.addEventListener('click', async function(){
+        try{ setPendOpen(false); }catch(e){}
+        await __finalizarVisitaComPendencias('nao');
+      });
+    }
+  }catch(e){}
+
+  // Editar visita (abre a página completa de edição e fecha o modal antes)
+  if(BTN_EDIT){
+    BTN_EDIT.addEventListener('click', function(){
+      try{
+        var id = STATE.visitaId;
+        if(!id) return;
+        // Fecha a janelinha para não ficar em segundo plano
+        setOpen(false);
+        window.location.href = '/visitas/' + encodeURIComponent(String(id));
+      }catch(e){}
+    });
+  }
+
+  // Clique na linha da lista -> abre modal (sem impedir links normais)
+  document.addEventListener('click', function(e){
+    try{
+      var t = e.target;
+      if(!t || !t.closest) return;
+      var row = t.closest('tr.js-open-visita');
+      if(!row) return;
+      if(t.closest('.action-group') || t.closest('[data-copy]') || t.closest('form') || t.closest('button') || t.closest('a.action-btn')) return;
+      // se clicar em um link normal dentro da linha, mantém navegação padrão
+      if(t.closest('a')) return;
+      e.preventDefault();
+      openModal(row.getAttribute('data-visita-id'));
+    }catch(err){}
+  }, true);
+
+  document.addEventListener('keydown', function(e){
+    try{
+      if(!(e.key === 'Enter' || e.key === ' ')) return;
+      var el = document.activeElement;
+      if(!el || !el.closest) return;
+      var row = el.closest('tr.js-open-visita');
+      if(!row) return;
+      e.preventDefault();
+      openModal(row.getAttribute('data-visita-id'));
+    }catch(err){}
+  });
+})();
+</script>
+<script>
+// Copiar texto para a área de transferência sem alertas (ex.: CPF na lista)
+(function(){
+  function fallbackCopy(text){
+    try{
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly','');
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      ta.style.top = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try{ document.execCommand('copy'); }catch(e){}
+      document.body.removeChild(ta);
+      return true;
+    } catch(e){
+      return false;
+    }
+  }
+
+  document.addEventListener('click', function(e){
+    var el = e.target && e.target.closest ? e.target.closest('[data-copy]') : null;
+    if(!el) return;
+    var text = el.getAttribute('data-copy') || '';
+    if(!text) return;
+    // evita foco/seleção estranha
+    e.preventDefault();
+
+    var done = false;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function(){
+        done = true;
+        el.classList.add('copied');
+        setTimeout(function(){ el.classList.remove('copied'); }, 700);
+      }).catch(function(){
+        if(fallbackCopy(text)){
+          el.classList.add('copied');
+          setTimeout(function(){ el.classList.remove('copied'); }, 700);
+        }
+      });
+    } else {
+      if(fallbackCopy(text)){
+        el.classList.add('copied');
+        setTimeout(function(){ el.classList.remove('copied'); }, 700);
+      }
+    }
+  });
+})();
+
+    // -------------------------------------------------------------------------
+    // Modal Genérico (Painel / Configurações)
+    // -------------------------------------------------------------------------
+    
+    // -------------------------------------------------------------------------
+    // Modal Genérico (Painel / Configurações) - abre dentro da própria página
+    // -------------------------------------------------------------------------
+    (function(){
+      function qs(sel, root){ return (root || document).querySelector(sel); }
+
+      window.__astroGenericNeedsRefresh = false;
+
+      var GM = qs('#astroGenericModal');
+      if(!GM) return;
+
+      var GTitle = qs('#astroGenericTitle');
+      var GBody  = qs('#astroGenericBody');
+
+      // Flag de alterações não salvas dentro do modal
+      window.__astroGenericDirty = false;
+
+      function setOpen(on){
+        try{
+          if(on){
+            GM.classList.add('is-open');
+            GM.setAttribute('aria-hidden','false');
+            document.body.style.overflow='hidden';
+            window.__astroGenericDirty = false;
+          }else{
+            GM.classList.remove('is-open');
+            GM.setAttribute('aria-hidden','true');
+            document.body.style.overflow='';
+            if(GBody) GBody.innerHTML = '';
+            window.__astroGenericDirty = false;
+          }
+        }catch(e){}
+      }
+
+      function attemptClose(){
+        try{
+          if(window.__astroGenericDirty){
+            var ok = window.confirm('Você tem alterações não salvas. Deseja salvar antes de fechar?');
+            if(ok){
+              // tenta enviar o form "principal" da tela
+              var f = (GBody && GBody.querySelector) ? (GBody.querySelector('form[data-panel-save="1"]') || GBody.querySelector('form')) : null;
+              if(f){
+                try{
+                  // requestSubmit preserva validações do navegador
+                  if(typeof f.requestSubmit === 'function') f.requestSubmit();
+                  else f.submit();
+                  return;
+                }catch(e){}
+              }
+            }
+          }
+        }catch(e){}
+        setOpen(false);
+        try{
+          if(window.__astroGenericNeedsRefresh){
+            window.__astroGenericNeedsRefresh = false;
+            window.location.reload();
+          }
+        }catch(e){}
+      }
+
+      function closeIf(e){
+        try{
+          var t = e.target;
+          // Em alguns navegadores o target pode ser Text node
+          if(t && t.nodeType === 3) t = t.parentElement;
+          // Fecha ao clicar em qualquer elemento (ou filho) marcado com data-close="1"
+          var closer = (t && t.closest) ? t.closest('[data-close="1"]') : null;
+          if(closer){
+            attemptClose();
+          }
+        }catch(err){}
+      }
+
+      GM.addEventListener('click', closeIf);
+      document.addEventListener('keydown', function(e){ if(e.key === 'Escape') attemptClose(); });
+
+      async function loadIntoModal(url){
+        var u = new URL(url || '/', window.location.origin);
+        u.searchParams.set('embed','1');
+        var res = await fetch(u.toString(), { credentials:'same-origin', headers:{'X-Astro-Modal':'1'} });
+        var html = await res.text();
+        var doc  = new DOMParser().parseFromString(html, 'text/html');
+        var main = doc.querySelector('#app-main');
+        return main ? main.innerHTML : html;
+      }
+
+      
+      function execScripts(container){
+        try{
+          if(!container) return;
+          var scripts = Array.from(container.querySelectorAll('script'));
+          scripts.forEach(function(old){
+            try{
+              var s = document.createElement('script');
+              // copia atributos importantes
+              Array.from(old.attributes || []).forEach(function(a){ s.setAttribute(a.name, a.value); });
+              if(old.textContent) s.textContent = old.textContent;
+              old.parentNode.replaceChild(s, old);
+            }catch(e){}
+          });
+        }catch(e){}
+      }
+
+function wireForms(container){
+        if(!container) return;
+
+        // marca como "sujo" quando o usuário altera algo dentro do modal
+        try{
+          container.querySelectorAll('input, textarea, select').forEach(function(el){
+            el.addEventListener('change', function(){ window.__astroGenericDirty = true; }, true);
+            el.addEventListener('input', function(){ window.__astroGenericDirty = true; }, true);
+          });
+        }catch(e){}
+
+        // Intercepta submits para não "navegar" dentro da mini-janela
+        container.querySelectorAll('form').forEach(function(form){
+          form.addEventListener('submit', async function(ev){
+            ev.preventDefault();
+            try{
+              var method = (form.getAttribute('method') || 'GET').toUpperCase();
+              var action = form.getAttribute('action') || window.location.href;
+              var target = new URL(action, window.location.origin);
+
+              var opt = { method: method, credentials:'same-origin', headers:{'X-Astro-Modal':'1'} };
+
+              if(method === 'GET'){
+                // aplica campos do form na querystring
+                var fd = new FormData(form);
+                fd.forEach(function(v,k){
+                  if(v !== null && v !== undefined && String(v).trim() !== ''){
+                    target.searchParams.set(k, v);
+                  }else{
+                    target.searchParams.delete(k);
+                  }
+                });
+              }else{
+                opt.body = new FormData(form);
+              }
+
+              var res = await fetch(target.toString(), opt);
+
+              var ct = (res.headers.get('content-type') || '').toLowerCase();
+
+              // Para POST/PUT/etc: se o backend redirecionar (muito comum), consideramos sucesso.
+              // Isso evita o "espelho" navegando para /painel dentro do modal.
+              if(method !== 'GET'){
+                try{
+                  if(res.redirected){
+                    if(typeof toast === 'function') toast('Salvo com sucesso.');
+                    window.__astroGenericNeedsRefresh = true;
+                    window.__astroGenericDirty = false;
+                    setOpen(false);
+                    setTimeout(function(){ try{ window.location.reload(); }catch(e){} }, 3000);
+                    return;
+                  }
+                }catch(e){}
+              }
+
+              // Resposta JSON (preferido no modo modal)
+              if(ct.includes('application/json')){
+                var js = {};
+                try{ js = await res.json(); }catch(e){ js = {}; }
+                if(method !== 'GET' && js && (js.ok === true || js.success === true)){
+                  if(typeof toast === 'function') toast(js.message || 'Salvo com sucesso.');
+                  window.__astroGenericNeedsRefresh = true;
+                  window.__astroGenericDirty = false;
+                  setOpen(false);
+                  setTimeout(function(){ try{ window.location.reload(); }catch(e){} }, 3000);
+                  return;
+                }
+                // Erro JSON: mostra mensagem dentro do modal
+                var msg = (js && (js.message || js.detail)) || 'Não foi possível salvar.';
+                var box = container.querySelector('[data-astro-error="1"]');
+                if(!box){
+                  box = document.createElement('div');
+                  box.setAttribute('data-astro-error','1');
+                  box.style.cssText = 'background:#fee2e2;border:1px solid #fecaca;color:#7f1d1d;padding:10px;border-radius:10px;margin-bottom:12px';
+                  container.prepend(box);
+                }
+                box.textContent = msg;
+                return;
+              }
+
+              // Se a rota retorna HTML (erros/validação), re-renderiza a mini-janela
+              if(ct.includes('text/html')){
+                var html = await res.text();
+
+                // Se veio uma página completa, pega apenas o #app-main
+                var doc  = new DOMParser().parseFromString(html,'text/html');
+                var main = doc.querySelector('#app-main');
+
+                // Se for POST e o servidor devolveu /painel (ou outra tela) via redirect,
+                // preferimos tratar como sucesso e fechar.
+                if(method !== 'GET'){
+                  try{
+                    var p = (new URL(res.url, window.location.origin)).pathname || '';
+                    if(p === '/painel' || p === '/panel' || p === '/admin' || p === '/admin/config'){
+                      if(typeof toast === 'function') toast('Salvo com sucesso.');
+                      window.__astroGenericNeedsRefresh = true;
+                      window.__astroGenericDirty = false;
+                      setOpen(false);
+                      setTimeout(function(){ try{ window.location.reload(); }catch(e){} }, 3000);
+                      return;
+                    }
+                  }catch(e){}
+                }
+
+                if(main){
+                  container.innerHTML = main.innerHTML;
+                  execScripts(container);
+                  wireForms(container);
+                  return;
+                }
+              }
+
+              // Sucesso genérico (sem redirect/json)
+              if(method !== 'GET'){
+                if(typeof toast === 'function') toast('Salvo com sucesso.');
+                window.__astroGenericNeedsRefresh = true;
+                window.__astroGenericDirty = false;
+                setOpen(false);
+                setTimeout(function(){ try{ window.location.reload(); }catch(e){} }, 3000);
+                return;
+              }
+}catch(err){
+              console.error(err);
+              if(typeof toast === 'function') toast('Não foi possível salvar. Tente novamente.');
+            }
+          });
+        });
+
+        // Intercepta links dentro do modal (para evitar "espelho")
+        container.querySelectorAll('a').forEach(function(a){
+          a.addEventListener('click', async function(ev){
+            try{
+              var href = a.getAttribute('href') || '';
+              if(!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+
+              // Links de download (ex: exportar backup) NÃO devem ser interceptados.
+              // Se interceptar, o browser renderiza o arquivo dentro do modal como texto.
+              var target = (a.getAttribute('target') || '').toLowerCase();
+              var hasDownloadAttr = a.hasAttribute('download') || (a.getAttribute('download') !== null);
+              var isExportBackup = href.indexOf('/painel/backup/export') === 0 || href.indexOf('/admin/backup/export') === 0;
+              if(hasDownloadAttr || target === '_top' || target === '_blank' || isExportBackup){
+                // deixa o comportamento padrão do navegador (download/nova aba)
+                return;
+              }
+
+              // links externos abrem em nova guia
+              if(href.startsWith('http://') || href.startsWith('https://')){
+                a.setAttribute('target','_blank'); 
+                a.setAttribute('rel','noopener');
+                return;
+              }
+
+              ev.preventDefault();
+              container.innerHTML = 'Carregando…';
+              container.innerHTML = await loadIntoModal(href);
+              wireForms(container);
+            }catch(e){}
+          });
+        });
+      }
+
+      // API pública: abre uma "mini página" dentro da própria página (modal)
+      window.__astroOpenModal = async function(title, url){
+        try{
+          if(GTitle) GTitle.textContent = title || 'Painel';
+          if(GBody) GBody.innerHTML = 'Carregando…';
+          setOpen(true);
+          if(GBody){
+            GBody.innerHTML = await loadIntoModal(url);
+            execScripts(GBody);
+            wireForms(GBody);
+          }
+        }catch(err){
+          console.error(err);
+          if(GBody) GBody.innerHTML = '<div class="small">Não foi possível carregar.</div>';
+        }
+      };
+
+      // Compatibilidade: chamadas antigas continuam funcionando
+      window.__astroOpenPopup = window.__astroOpenModal;
+      // Delegação: botões com data-astro-modal-url (ex.: Painel) abrem no modal genérico
+      document.addEventListener('click', function(ev){
+        try{
+          var t = ev.target;
+          // Em alguns navegadores o target pode ser Text node
+          if(t && t.nodeType === 3) t = t.parentElement;
+
+          var btn = (t && t.closest) ? t.closest('[data-astro-modal-url], [data-astro-modal-title]') : null;
+          if(!btn) return;
+
+          var url = btn.getAttribute('data-astro-modal-url');
+          if(!url) return;
+
+          ev.preventDefault();
+          var title = btn.getAttribute('data-astro-modal-title') || 'Painel';
+          if(url && window.__astroOpenModal){
+            window.__astroOpenModal(title, url);
+          }
+        }catch(e){}
+      }, true);
+
+      // Exposto globalmente
+      window.__astroOpenGenericModal = async function(title, url, mode){
+        try{
+          if(GTitle) GTitle.textContent = title || 'Painel';
+          mode = mode || 'iframe';
+          setOpen(true);
+
+          if(mode === 'fetch'){
+            if(GFrame) GFrame.style.display='none';
+            if(GBody) GBody.innerHTML = '<div class="small">Carregando...</div>';
+            var r = await fetch(url, {credentials:'same-origin'});
+            if(!r.ok) throw new Error('Falha ao carregar (' + r.status + ')');
+            var html = await r.text();
+            if(GBody) GBody.innerHTML = html;
+          }else{
+            if(GBody) GBody.innerHTML = '';
+            if(GFrame){
+              GFrame.style.display='block';
+              GFrame.src = url;
+            }
+          }
+        }catch(e){
+          try{
+            if(typeof toast === 'function') toast('Não foi possível abrir o painel.');
+          }catch(err){}
+          setOpen(false);
+        }
+      };
+
+      // Ajuda para páginas embutidas (iframe) fecharem o modal e atualizarem a página pai
+      window.__astroGenericClose = function(){ try{ setOpen(false); }catch(e){} };
+      window.__astroGenericMarkNeedsRefresh = function(){ try{ window.__astroGenericNeedsRefresh = true; }catch(e){} };
+      window.__astroGenericCloseAndRefresh = function(){
+        // Compat: antes fechava e recarregava; agora apenas marca para recarregar ao fechar.
+        try{ window.__astroGenericNeedsRefresh = true; }catch(e){}
+        try{ setOpen(false); }catch(e){}
+      };
+      window.__astroGenericCloseAndGoto = function(url){
+        try{ setOpen(false); }catch(e){}
+        try{ window.location.href = (url || window.location.href); }catch(e){}
+      };
+
+      // Preferência local: notificações (Atendimentos)
+      function initNotifToggle(){
+        var el = qs('#pdNotifToggle');
+        if(!el) return;
+        try{
+          el.checked = (localStorage.getItem('pd_notif_enabled') === '1');
+        }catch(e){}
+        el.addEventListener('change', async function(){
+          try{
+            var on = !!el.checked;
+            if(on && typeof Notification !== 'undefined' && Notification.permission === 'default'){
+              try{ await Notification.requestPermission(); }catch(e){}
+            }
+            localStorage.setItem('pd_notif_enabled', on ? '1' : '0');
+            if(typeof toast === 'function') toast(on ? 'Notificações ativadas.' : 'Notificações desativadas.');
+          }catch(e){}
+        });
+      }
+      if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', initNotifToggle);
+      }else{
+        initNotifToggle();
+      }
+    })();
+
+</script>
+
+
+<script>
+(function(){
+  // Helpers
+  function el(id){ return document.getElementById(id); }
+  function hasClosest(t, sel){ try{ return t && t.closest ? t.closest(sel) : null; }catch(_){ return null; } }
+
+  // -------------------------
+  // THEME toggle (dark/light)
+  // -------------------------
+  var root = document.documentElement;
+
+  function preferSystem(){
+    try{
+      return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }catch(_){}
+    return 'light';
+  }
+  function getTheme(){
+    try{
+      var a = root.getAttribute('data-theme');
+      if(a === 'dark' || a === 'light') return a;
+      var t = localStorage.getItem('pd_theme');
+      if(t === 'dark' || t === 'light') return t;
+    }catch(_){}
+    return preferSystem();
+  }
+  function setTheme(t){
+    try{
+      root.setAttribute('data-theme', t);
+      document.body.classList.toggle('pd-dark', t === 'dark');
+      localStorage.setItem('pd_theme', t);
+    }catch(_){}
+
+    // Atualiza o rótulo do botão no menu: quando estiver CLARO mostra opção "MODO ESCURO" e vice-versa.
+    try{
+      var btn = document.getElementById('themeToggle');
+      var lbl = document.getElementById('themeLabel');
+      if(btn && lbl){
+        var next = (t === 'dark') ? 'MODO CLARO' : 'MODO ESCURO';
+        lbl.textContent = next;
+        btn.setAttribute('title', next);
+        btn.setAttribute('aria-label', next);
+      }
+    }catch(_){ }
+  }
+  try{ setTheme(getTheme()); }catch(_){}
+
+  // Se o usuário não escolheu nada, segue o sistema
+  try{
+    if(!localStorage.getItem('pd_theme') && window.matchMedia){
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){
+        setTheme(preferSystem());
+      });
+    }
+  }catch(_){}
+
+  // -------------------------
+  
+  // -------------------------
+  // NOTIF drawer + badge
+  // -------------------------
+  var PD_NOTIF_LIMIT = 3;          // visível inicialmente
+  var PD_NOTIF_FETCH_LIMIT = 200;  // fetch
+  var PD_NOTIF_DISMISSED_KEY = 'pd_notif_dismissed_ids_v2';
+  var PD_NOTIF_CLEARED_MAX_ID_KEY = 'pd_notif_cleared_max_id_v1';
+  var __pdNotifCache = { ts: 0, data: null };
+  var __pdNotifShown = PD_NOTIF_LIMIT;
+
+  // Notificações do TOPO (ícone/drawer) foram desativadas (pedido do Emerson).
+  // Mantemos o restante do sistema de notificações (toasts/alertas) intacto.
+  var __PD_TOP_NOTIF_DISABLED__ = false;
+  try{
+    __PD_TOP_NOTIF_DISABLED__ = !(el('notifBtn') && el('notifDrawer') && el('notifBadge'));
+  }catch(_){ __PD_TOP_NOTIF_DISABLED__ = true; }
+  if(__PD_TOP_NOTIF_DISABLED__){
+    try{ window.__PD_NOTIF__ = window.__PD_NOTIF__ || {}; }catch(_){ }
+    try{ window.__PD_NOTIF__.refresh = function(){}; }catch(_){ }
+  }
+
+  function __pdGetDismissed(){
+    try{
+      var raw = localStorage.getItem(PD_NOTIF_DISMISSED_KEY);
+      if(!raw) return new Set();
+      var arr = JSON.parse(raw);
+      if(!Array.isArray(arr)) return new Set();
+      return new Set(arr.map(function(x){ return String(x); }));
+    }catch(_){ return new Set(); }
+  }
+  function __pdSetDismissed(setObj){
+    try{ localStorage.setItem(PD_NOTIF_DISMISSED_KEY, JSON.stringify(Array.from(setObj || []))); }catch(_){}
+  }
+
+  function __pdGetClearedMaxId(){
+    try{
+      var v = localStorage.getItem(PD_NOTIF_CLEARED_MAX_ID_KEY);
+      if(!v) return 0;
+      var n = parseInt(v, 10);
+      return isNaN(n) ? 0 : n;
+    }catch(_){ return 0; }
+  }
+  function __pdSetClearedMaxId(n){
+    try{
+      if(!n) localStorage.removeItem(PD_NOTIF_CLEARED_MAX_ID_KEY);
+      else localStorage.setItem(PD_NOTIF_CLEARED_MAX_ID_KEY, String(parseInt(n,10)));
+    }catch(_){}
+  }
+
+  async function fetchServerNotifs(force){
+    try{
+      if(__PD_TOP_NOTIF_DISABLED__) return { count: 0, items: [] };
+      var now = Date.now();
+      if(!force && __pdNotifCache.data && (now - __pdNotifCache.ts) < 3000){
+        return __pdNotifCache.data;
+      }
+      var res = await fetch('/api/notificacoes/atendimentos?limit=' + encodeURIComponent(String(PD_NOTIF_FETCH_LIMIT)), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin'
+      });
+      if(!res.ok) throw new Error('http_' + res.status);
+      var data = await res.json();
+      if(!data || typeof data.count !== 'number' || !Array.isArray(data.items)) throw new Error('bad_payload');
+      __pdNotifCache = { ts: now, data: data };
+      return data;
+    }catch(_){
+      return null;
+    }
+  }
+
+  function __pdFmtDate(iso){
+    try{
+      if(!iso) return '';
+      var d = new Date(iso);
+      if(!isNaN(d.getTime())) return d.toLocaleString();
+      return String(iso);
+    }catch(_){ return ''; }
+  }
+
+  function __pdFilterVisibleItems(items){
+    var dismissed = __pdGetDismissed();
+    var clearedMaxId = __pdGetClearedMaxId();
+    return (items || []).filter(function(a){
+      try{
+        if(!a || a.id == null) return false;
+        if(parseInt(a.id,10) <= clearedMaxId) return false;
+        if(dismissed.has(String(a.id))) return false;
+        return true;
+      }catch(_){ return false; }
+    });
+  }
+
+  async function syncBadge(){
+    if(__PD_TOP_NOTIF_DISABLED__) return;
+    var badge = el('notifBadge');
+    if(!badge) return;
+
+    var data = await fetchServerNotifs(false);
+    if(!data){
+      badge.hidden = true;
+      badge.textContent = '0';
+      return;
+    }
+
+    var visible = __pdFilterVisibleItems(data.items || []);
+    var visibleCount = visible.length;
+
+    if(visibleCount > 0){
+      badge.hidden = false;
+      badge.textContent = String(visibleCount > 99 ? '99+' : visibleCount);
+    }else{
+      badge.hidden = true;
+      badge.textContent = '0';
+    }
+  }
+
+  function openNotif(){
+    var drawer = el('notifDrawer');
+    if(!drawer) return;
+    drawer.classList.add('is-open');
+    drawer.setAttribute('aria-hidden','false');
+    document.body.classList.add('drawer-open');
+    __pdNotifShown = PD_NOTIF_LIMIT;
+    renderNotifList(true);
+  }
+  function closeNotif(){
+    var drawer = el('notifDrawer');
+    if(!drawer) return;
+    drawer.classList.remove('is-open');
+    drawer.setAttribute('aria-hidden','true');
+    document.body.classList.remove('drawer-open');
+  }
+  function toggleNotif(){
+    var drawer = el('notifDrawer');
+    if(!drawer) return;
+    if(drawer.classList.contains('is-open')) closeNotif();
+    else openNotif();
+  }
+
+  function __pdRenderMoreButton(totalAvailable){
+    var btn = el('notifMore');
+    if(!btn) return;
+    if(totalAvailable > __pdNotifShown){
+      btn.style.display = 'inline-flex';
+      btn.textContent = 'Carregar mais';
+    }else{
+      btn.style.display = 'none';
+    }
+  }
+
+  async function renderNotifList(force){
+    if(__PD_TOP_NOTIF_DISABLED__) return;
+    var listEl = el('notifList');
+    var emptyEl = el('notifEmpty');
+    if(!listEl) return;
+
+    var data = await fetchServerNotifs(!!force);
+    listEl.innerHTML = '';
+
+    if(!data){
+      if(emptyEl) emptyEl.style.display = 'block';
+      __pdRenderMoreButton(0);
+      return;
+    }
+
+    var all = __pdFilterVisibleItems(data.items || []);
+    if(emptyEl) emptyEl.style.display = (all.length ? 'none' : 'block');
+
+    var visible = all.slice(0, __pdNotifShown);
+
+    visible.forEach(function(a){
+      var item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'notif-item';
+      item.setAttribute('data-at', a.id);
+
+      var left = document.createElement('div');
+      left.className = 'nt-left';
+
+      var title = document.createElement('div');
+      title.className = 'nt-title';
+
+      var rawTitulo = (a.titulo || '').trim();
+      var tipo = (a.tipo || '').trim();
+
+      // Evita duplicar tipo caso o titulo já contenha " - Tipo"
+      var nome = rawTitulo;
+      try{
+        if(tipo){
+          var suf = ' - ' + tipo;
+          if(nome.endsWith(suf)) nome = nome.slice(0, -suf.length).trim();
+        }
+      }catch(_){}
+
+      // Render: **NOME** - Tipo  (tipo SEM negrito)
+      var strong = document.createElement('strong');
+      strong.textContent = (nome || 'Atendimento');
+      title.appendChild(strong);
+
+      if(tipo){
+        var span = document.createElement('span');
+        span.className = 'nt-type';
+        span.textContent = ' - ' + tipo;
+        title.appendChild(span);
+      }
+
+      left.appendChild(title);
+
+      var right = document.createElement('div');
+      right.className = 'nt-right';
+
+      var time = document.createElement('div');
+      time.className = 'nt-time';
+      time.textContent = __pdFmtDate(a.criado_em);
+      right.appendChild(time);
+
+      item.appendChild(left);
+      item.appendChild(right);
+
+      item.addEventListener('click', function(){
+        try{
+          var opener =
+            (typeof window.__ASTRO_OPEN_ATENDIMENTO_MODAL__ === 'function') ? window.__ASTRO_OPEN_ATENDIMENTO_MODAL__ :
+            (typeof window.__astroOpenAtendimentoModal === 'function') ? window.__astroOpenAtendimentoModal :
+            null;
+
+          if(a && a.id != null && opener){
+            opener(a.id, null);
+          }else{
+            window.location.href = '/atendimentos';
+          }
+        }catch(_){
+          window.location.href = '/atendimentos';
+        }
+      });
+
+      listEl.appendChild(item);
+    });
+
+    __pdRenderMoreButton(all.length);
+  }
+
+  async function clearAllNotifs(){
+    if(__PD_TOP_NOTIF_DISABLED__) return;
+    // Limpa "para o usuário" por ID (robusto contra relógio do servidor/cliente).
+    // Marca como "lidos" todos os atendimentos existentes agora. Novos (id maior) voltam a aparecer.
+    var data = await fetchServerNotifs(true);
+    var maxId = 0;
+    try{
+      (data && data.items ? data.items : []).forEach(function(a){
+        var idn = parseInt(a && a.id != null ? a.id : 0, 10);
+        if(!isNaN(idn) && idn > maxId) maxId = idn;
+      });
+    }catch(_){}
+    try{ __pdSetClearedMaxId(maxId); }catch(_){}
+    try{ localStorage.removeItem(PD_NOTIF_DISMISSED_KEY); }catch(_){}
+    try{ __pdNotifCache = { ts: 0, data: null }; }catch(_){}
+    try{ syncBadge(); }catch(_){}
+    try{ renderNotifList(true); }catch(_){}
+  }
+
+  // -------------------------
+  // CLICK delegation (funciona em TODAS as páginas)
+  // -------------------------
+
+  // Submenu do topo (ícone 3 tracinhos)
+  function openTopMenu(){
+    var d = el('topMenuDrawer');
+    if(!d) return;
+    d.classList.add('is-open');
+    d.setAttribute('aria-hidden','false');
+    document.body.classList.add('drawer-open');
+  }
+  function closeTopMenu(){
+    var d = el('topMenuDrawer');
+    if(!d) return;
+    d.classList.remove('is-open');
+    d.setAttribute('aria-hidden','true');
+    document.body.classList.remove('drawer-open');
+  }
+  function toggleTopMenu(){
+    var d = el('topMenuDrawer');
+    if(!d) return;
+    if(d.classList.contains('is-open')) closeTopMenu();
+    else openTopMenu();
+  }
+  document.addEventListener('click', function(e){
+    var t = e && e.target;
+    if(!t) return;
+
+    if(hasClosest(t, '#topMenuBtn')){
+      e.preventDefault();
+      try{ toggleTopMenu(); }catch(_){ }
+      return;
+    }
+    if(hasClosest(t, '#topMenuDrawer .backdrop')){
+      e.preventDefault();
+      try{ closeTopMenu(); }catch(_){ }
+      return;
+    }
+    if(hasClosest(t, '#topMenuDrawer a')){
+      try{ closeTopMenu(); }catch(_){ }
+      return;
+    }
+
+    if(hasClosest(t, '#themeToggle')){
+      e.preventDefault();
+      try{
+        var cur = getTheme();
+        setTheme(cur === 'dark' ? 'light' : 'dark');
+      }catch(_){}
+      return;
+    }
+
+    // (notifClear desativado)
+
+    // (notifMore desativado)
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(e && e.key === 'Escape'){
+	      try{ closeTopMenu(); }catch(_){}
+	      try{ closeNotif(); }catch(_){}
+    }
+  });
+
+  try{
+    window.__PD_NOTIF__ = window.__PD_NOTIF__ || {};
+    window.__PD_NOTIF__.refresh = function(){
+      try{ __pdNotifCache = { ts: 0, data: null }; }catch(_){}
+      try{ syncBadge(); }catch(_){}
+      try{
+        var drawer = el('notifDrawer');
+        if(drawer && drawer.classList.contains('is-open')) renderNotifList(true);
+      }catch(_){}
+    };
+  }catch(_){}
+  if(!__PD_TOP_NOTIF_DISABLED__){
+    try{ setInterval(function(){ try{ syncBadge(); }catch(_){} }, 5000); }catch(_){}
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', syncBadge);
+    }else{
+      syncBadge();
+    }
+  }
+})();
+</script>
+
+<script>
+(function(){
+  var host = location.hostname || '';
+  var seg = location.pathname.split('/').filter(Boolean);
+  var base = '';
+  if (host.endsWith('github.io') && seg.length>0) base = '/' + seg[0];
+  window.PD_BASE = base;
+
+  function prefixURL(u){
+    if(!u || typeof u!=='string') return u;
+    if(!base) return u;
+    if(u.startsWith('http://')||u.startsWith('https://')||u.startsWith('mailto:')||u.startsWith('#')) return u;
+    if(u.startsWith('/')) return base + u;
+    return u;
+  }
+  function patch(){
+    document.querySelectorAll('a[href]').forEach(function(a){ a.setAttribute('href', prefixURL(a.getAttribute('href'))); });
+    document.querySelectorAll('form[action]').forEach(function(f){ f.setAttribute('action', prefixURL(f.getAttribute('action'))); });
+    document.querySelectorAll('[data-astro-modal-url]').forEach(function(b){
+      b.setAttribute('data-astro-modal-url', prefixURL(b.getAttribute('data-astro-modal-url')));
+    });
+    document.querySelectorAll('link[href]').forEach(function(l){
+      var h=l.getAttribute('href');
+      if(h && h.startsWith('/static/')) l.setAttribute('href', prefixURL(h));
+    });
+    document.querySelectorAll('audio source[src], audio[src]').forEach(function(el){
+      var s=el.getAttribute('src'); if(s && s.startsWith('/static/')) el.setAttribute('src', prefixURL(s));
+    });
+    document.querySelectorAll('img[src]').forEach(function(img){
+      var s=img.getAttribute('src'); if(s && s.startsWith('/')) img.setAttribute('src', prefixURL(s));
+    });
+  }
+
+  function isLogged(){ try{return localStorage.getItem('pd_demo_logged')==='1';}catch(e){return false;} }
+  function setLogged(v){ try{localStorage.setItem('pd_demo_logged', v?'1':'0');}catch(e){} }
+
+  document.addEventListener('submit', function(ev){
+    var f = ev.target;
+    if(!f || f.tagName!=='FORM') return;
+    var action = (f.getAttribute('action')||'');
+    action = action.replace(base,'');
+    if(action === '/login'){
+      ev.preventDefault();
+      setLogged(true);
+      location.href = prefixURL('/');
+      return;
+    }
+    if((f.getAttribute('method')||'').toLowerCase()==='post'){
+      ev.preventDefault();
+      if(window.toast) window.toast('Ação desativada na versão demonstrativa.');
+      else alert('Ação desativada na versão demonstrativa.');
+    }
+  }, true);
+
+  document.addEventListener('DOMContentLoaded', function(){
+    patch();
+    var p = (location.pathname||'').replace(base,'') || '/';
+    if((p !== '/login' && p !== '/login/') && !isLogged()){
+      location.replace(prefixURL('/login/'));
+      return;
+    }
+    document.querySelectorAll('a[href]').forEach(function(a){
+      var href=(a.getAttribute('href')||'').replace(base,'');
+      if(href==='/logout'){
+        a.addEventListener('click', function(e){ e.preventDefault(); setLogged(false); location.href=prefixURL('/login/'); });
+      }
+    });
+
+    var realFetch = window.fetch;
+    window.fetch = function(input, init){
+      var url = (typeof input === 'string') ? input : (input && input.url) ? input.url : '';
+      var u = (url||'').replace(base,'');
+      if(u.startsWith('/api/')){
+        if(u.startsWith('/api/notificacoes/atendimentos')){
+          return Promise.resolve(new Response(JSON.stringify({items:[]}), {status:200, headers:{'Content-Type':'application/json'}}));
+        }
+        if(u.startsWith('/api/visitas/settings')){
+          return Promise.resolve(new Response(JSON.stringify({theme:'light'}), {status:200, headers:{'Content-Type':'application/json'}}));
+        }
+        if(u.startsWith('/api/visitas/item/')){
+          return Promise.resolve(new Response(JSON.stringify({ok:true}), {status:200, headers:{'Content-Type':'application/json'}}));
+        }
+        if(u.startsWith('/api/atendimento/')){
+          return Promise.resolve(new Response(JSON.stringify({ok:true}), {status:200, headers:{'Content-Type':'application/json'}}));
+        }
+      }
+      return realFetch(input, init);
+    };
+  });
+})();
+</script>
+
+</body>
+</html>
